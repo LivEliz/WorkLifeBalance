@@ -18,26 +18,38 @@ print("Shape:", df.shape)
 
 
 # -------------------------------------------------
-# Create 3-Level Target Variable
-# 0 = Low
-# 1 = Moderate
-# 2 = High
+# Create Stress Score using ALL features
+# (more realistic than single threshold)
+# -------------------------------------------------
+stress_score = (
+    0.35 * df["Work_Hours_Per_Week"] +
+    0.25 * df["Overtime_Hours"] +
+    0.20 * (1 - df["Employee_Satisfaction_Score"]) +
+    0.10 * df["Projects_Handled"] / df["Projects_Handled"].max() +
+    0.05 * df["Sick_Days"] / df["Sick_Days"].max() +
+    0.05 * (1 - df["Performance_Score"])
+)
+
+
+# -------------------------------------------------
+# Convert score → classes
+# 0 = Low | 1 = Moderate | 2 = High
 # -------------------------------------------------
 conditions = [
-    (df["Work_Hours_Per_Week"] < 0.3),
-    (df["Work_Hours_Per_Week"].between(0.3, 0.6)),
-    (df["Work_Hours_Per_Week"] > 0.6)
+    stress_score < 0.4,
+    (stress_score >= 0.4) & (stress_score < 0.7),
+    stress_score >= 0.7
 ]
 
 values = [0, 1, 2]
 
 df["Stress_Label"] = np.select(conditions, values)
 
-print("Multiclass Stress_Label created")
+print("Multiclass Stress_Label created using weighted stress score")
 
 
 # -------------------------------------------------
-# Features and Target
+# Features
 # -------------------------------------------------
 features = [
     "Work_Hours_Per_Week",
@@ -59,8 +71,6 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-print("Train-test split completed")
-
 
 # -------------------------------------------------
 # Train Random Forest
@@ -80,12 +90,21 @@ print("Model trained successfully")
 y_pred = model.predict(X_test)
 
 print("\nAccuracy:", accuracy_score(y_test, y_pred))
+
 print("\nClassification Report:\n")
 print(classification_report(
     y_test,
     y_pred,
     target_names=["Low", "Moderate", "High"]
 ))
+
+
+# -------------------------------------------------
+# Show Feature Importance (proof all features matter)
+# -------------------------------------------------
+importance = pd.Series(model.feature_importances_, index=features)
+print("\nFeature Importance:\n")
+print(importance.sort_values(ascending=False))
 
 
 # -------------------------------------------------
@@ -96,7 +115,7 @@ print("Model saved")
 
 
 # -------------------------------------------------
-# Predict from user input
+# Predict from user input (real-time)
 # -------------------------------------------------
 def predict_stress():
     print("\n=== Enter Employee Details (0–1 scaled values) ===")
@@ -115,11 +134,7 @@ def predict_stress():
         "Projects_Handled": projects,
         "Sick_Days": sick,
         "Performance_Score": performance
-}])
-
-    pred = model.predict(sample)[0]
-
-    #sample = np.array([[work, overtime, satisfaction, projects, sick, performance]])
+    }])
 
     pred = model.predict(sample)[0]
 
