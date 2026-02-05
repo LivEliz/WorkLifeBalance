@@ -9,18 +9,18 @@ import joblib
 
 print("Libraries imported successfully")
 
-# -------------------------------------------------
+
 # Load dataset
-# -------------------------------------------------
+
 df = pd.read_csv("preprocessed_employee_data.csv")
 print("Dataset loaded")
 print("Shape:", df.shape)
 
 
-# -------------------------------------------------
+
 # Create Stress Score using ALL features
 # (more realistic than single threshold)
-# -------------------------------------------------
+
 stress_score = (
     0.35 * df["Work_Hours_Per_Week"] +
     0.25 * df["Overtime_Hours"] +
@@ -31,10 +31,10 @@ stress_score = (
 )
 
 
-# -------------------------------------------------
+
 # Convert score → classes
 # 0 = Low | 1 = Moderate | 2 = High
-# -------------------------------------------------
+
 conditions = [
     stress_score < 0.4,
     (stress_score >= 0.4) & (stress_score < 0.7),
@@ -48,9 +48,9 @@ df["Stress_Label"] = np.select(conditions, values)
 print("Multiclass Stress_Label created using weighted stress score")
 
 
-# -------------------------------------------------
+
 # Features
-# -------------------------------------------------
+
 features = [
     "Work_Hours_Per_Week",
     "Overtime_Hours",
@@ -64,17 +64,17 @@ X = df[features]
 y = df["Stress_Label"]
 
 
-# -------------------------------------------------
+
 # Train-Test Split
-# -------------------------------------------------
+
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
 
-# -------------------------------------------------
+
 # Train Random Forest
-# -------------------------------------------------
+
 model = RandomForestClassifier(
     n_estimators=100,
     random_state=42
@@ -84,9 +84,9 @@ model.fit(X_train, y_train)
 print("Model trained successfully")
 
 
-# -------------------------------------------------
+
 # Evaluation
-# -------------------------------------------------
+
 y_pred = model.predict(X_test)
 
 print("\nAccuracy:", accuracy_score(y_test, y_pred))
@@ -99,24 +99,24 @@ print(classification_report(
 ))
 
 
-# -------------------------------------------------
+
 # Show Feature Importance (proof all features matter)
-# -------------------------------------------------
+
 importance = pd.Series(model.feature_importances_, index=features)
 print("\nFeature Importance:\n")
 print(importance.sort_values(ascending=False))
 
 
-# -------------------------------------------------
+
 # Save Model
-# -------------------------------------------------
+
 joblib.dump(model, "stress_prediction_model.pkl")
 print("Model saved")
 
 
-# -------------------------------------------------
+
 # Predict from user input (real-time)
-# -------------------------------------------------
+
 def predict_stress():
     print("\n=== Enter Employee Details (0–1 scaled values) ===")
 
