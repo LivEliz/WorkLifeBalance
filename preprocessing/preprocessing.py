@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 print("Libraries imported successfully")
 
 # Load dataset
-df = pd.read_csv("Employee_dataset.csv")
+df = pd.read_csv("../data/Employee_dataset.csv")
 print("Dataset loaded successfully")
 print("Shape:", df.shape)
 
@@ -48,7 +48,7 @@ df[["Work_Hours_Per_Week", "Projects_Handled", "Overtime_Hours", "Sick_Days"]] =
 print("Z-score normalization done")
 
 # Save output
-df.to_csv("preprocessed_employee_data.csv", index=False)
+df.to_csv("../data/preprocessed_employee_data.csv", index=False)
 print("File saved as preprocessed_employee_data.csv")
 
 print("=== PREPROCESSING SCRIPT COMPLETED ===")

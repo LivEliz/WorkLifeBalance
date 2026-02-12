@@ -20,7 +20,11 @@ print("Libraries imported successfully")
 # =========================
 # Configuration
 # =========================
-KNOWLEDGE_BASE_PATH = "rag/knowledge_base/stress_tips.txt"
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+KNOWLEDGE_BASE_PATH = os.path.join(BASE_DIR, "knowledge_base", "stress_tips.txt")
+
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 # =========================

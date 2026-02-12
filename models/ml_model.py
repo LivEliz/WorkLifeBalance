@@ -12,7 +12,7 @@ print("Libraries imported successfully")
 
 # Load dataset
 
-df = pd.read_csv("preprocessed_employee_data.csv")
+df = pd.read_csv("../data/preprocessed_employee_data.csv")
 print("Dataset loaded")
 print("Shape:", df.shape)
 
@@ -154,7 +154,7 @@ def predict_stress():
 
     print("\n=== FETCHING RECOMMENDATIONS FROM RAG ===\n")
 
-    subprocess.run(["python", "rag_engine.py", predicted_label])
+    subprocess.run(["python", "../rag/rag_engine.py", predicted_label])
 
 
 
