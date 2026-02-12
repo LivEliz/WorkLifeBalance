@@ -4,13 +4,15 @@ RAG ENGINE
 Retrieval-Augmented Generation module for
 Work-Life Balance & Stress Management System
 """
+import os
+print(">>> RAG FILE EXECUTED FROM:", os.path.abspath(__file__))
 
 print("=== RAG ENGINE STARTED ===")
 
 # =========================
 # Imports
 # =========================
-from sentence_transformers import SentenceTransformer
+"""from sentence_transformers import SentenceTransformer"""
 import faiss
 import numpy as np
 import os
