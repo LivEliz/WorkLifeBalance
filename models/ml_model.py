@@ -5,52 +5,69 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.preprocessing import MinMaxScaler
 import joblib
+import subprocess
 
 print("Libraries imported successfully")
 
 
-# Load dataset
-
+# -------------------------------------------------
+# Load Dataset
+# -------------------------------------------------
 df = pd.read_csv("../data/preprocessed_employee_data.csv")
 print("Dataset loaded")
 print("Shape:", df.shape)
 
 
+# -------------------------------------------------
+# Normalize selected features for stress scoring
+# -------------------------------------------------
+scaler_temp = MinMaxScaler()
 
-# Create Stress Score using ALL features
-# (more realistic than single threshold)
+cols_to_normalize = [
+    "Work_Hours_Per_Week",
+    "Overtime_Hours",
+    "Projects_Handled",
+    "Sick_Days"
+]
+
+df[cols_to_normalize] = scaler_temp.fit_transform(df[cols_to_normalize])
+
+
+# -------------------------------------------------
+# Nonlinear Stress Score + Interaction Effect
+# -------------------------------------------------
+interaction = df["Work_Hours_Per_Week"] * df["Overtime_Hours"]
 
 stress_score = (
-    0.35 * df["Work_Hours_Per_Week"] +
-    0.25 * df["Overtime_Hours"] +
+    0.30 * (df["Work_Hours_Per_Week"] ** 1.3) +
+    0.25 * (df["Overtime_Hours"] ** 1.2) +
     0.20 * (1 - df["Employee_Satisfaction_Score"]) +
-    0.10 * df["Projects_Handled"] / df["Projects_Handled"].max() +
-    0.05 * df["Sick_Days"] / df["Sick_Days"].max() +
-    0.05 * (1 - df["Performance_Score"])
+    0.10 * interaction +
+    0.10 * df["Projects_Handled"] +
+    0.05 * df["Sick_Days"]
 )
 
 
+# -------------------------------------------------
+# Dynamic Percentile-Based Labels
+# -------------------------------------------------
+low_threshold = stress_score.quantile(0.33)
+high_threshold = stress_score.quantile(0.66)
 
-# Convert score → classes
-# 0 = Low | 1 = Moderate | 2 = High
+df["Stress_Label"] = np.where(
+    stress_score < low_threshold, 0,
+    np.where(stress_score < high_threshold, 1, 2)
+)
 
-conditions = [
-    stress_score < 0.4,
-    (stress_score >= 0.4) & (stress_score < 0.7),
-    stress_score >= 0.7
-]
-
-values = [0, 1, 2]
-
-df["Stress_Label"] = np.select(conditions, values)
-
-print("Multiclass Stress_Label created using weighted stress score")
+print("Stress labels created using percentile thresholds")
+print(df["Stress_Label"].value_counts())
 
 
-
+# -------------------------------------------------
 # Features
-
+# -------------------------------------------------
 features = [
     "Work_Hours_Per_Week",
     "Overtime_Hours",
@@ -64,19 +81,27 @@ X = df[features]
 y = df["Stress_Label"]
 
 
+# -------------------------------------------------
+# Scale Features for Training
+# -------------------------------------------------
+scaler = MinMaxScaler()
+X_scaled = scaler.fit_transform(X)
 
+
+# -------------------------------------------------
 # Train-Test Split
-
+# -------------------------------------------------
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X_scaled, y, test_size=0.2, random_state=42
 )
 
 
-
+# -------------------------------------------------
 # Train Random Forest
-
+# -------------------------------------------------
 model = RandomForestClassifier(
-    n_estimators=100,
+    n_estimators=200,
+    max_depth=None,
     random_state=42
 )
 
@@ -84,9 +109,9 @@ model.fit(X_train, y_train)
 print("Model trained successfully")
 
 
-
+# -------------------------------------------------
 # Evaluation
-
+# -------------------------------------------------
 y_pred = model.predict(X_test)
 
 print("\nAccuracy:", accuracy_score(y_test, y_pred))
@@ -99,33 +124,35 @@ print(classification_report(
 ))
 
 
-
-# Show Feature Importance (proof all features matter)
-
+# -------------------------------------------------
+# Feature Importance
+# -------------------------------------------------
 importance = pd.Series(model.feature_importances_, index=features)
 print("\nFeature Importance:\n")
 print(importance.sort_values(ascending=False))
 
 
-
-# Save Model
-
+# -------------------------------------------------
+# Save Model + Scaler
+# -------------------------------------------------
 joblib.dump(model, "stress_prediction_model.pkl")
-print("Model saved")
+joblib.dump(scaler, "stress_scaler.pkl")
+
+print("Model and scaler saved successfully")
 
 
-
-# Predict from user input (real-time)
-
+# -------------------------------------------------
+# Real-Time Prediction + RAG Integration
+# -------------------------------------------------
 def predict_stress():
-    print("\n=== Enter Employee Details (0–1 scaled values) ===")
+    print("\n=== Enter Employee Details (RAW values) ===")
 
     work = float(input("Work hours per week: "))
     overtime = float(input("Overtime hours: "))
-    satisfaction = float(input("Satisfaction score: "))
+    satisfaction = float(input("Satisfaction score (0-1): "))
     projects = float(input("Projects handled: "))
     sick = float(input("Sick days: "))
-    performance = float(input("Performance score: "))
+    performance = float(input("Performance score (0-1): "))
 
     sample = pd.DataFrame([{
         "Work_Hours_Per_Week": work,
@@ -136,9 +163,12 @@ def predict_stress():
         "Performance_Score": performance
     }])
 
-    pred = model.predict(sample)[0]
+    # Scale using trained scaler
+    sample_scaled = scaler.transform(sample)
 
-    # Map numeric class to clean label (for RAG)
+    pred = model.predict(sample_scaled)[0]
+    prob = model.predict_proba(sample_scaled)[0]
+
     label_map = {
         0: "LOW",
         1: "MODERATE",
@@ -148,14 +178,21 @@ def predict_stress():
     predicted_label = label_map[pred]
 
     print("\nPredicted Stress Level:", predicted_label)
+    print("\nPrediction Confidence:")
+    print(f"Low: {prob[0]*100:.2f}%")
+    print(f"Moderate: {prob[1]*100:.2f}%")
+    print(f"High: {prob[2]*100:.2f}%")
 
-    # Call RAG
-    import subprocess
-
+    # -------------------------------------------------
+    # Call RAG Engine
+    # -------------------------------------------------
     print("\n=== FETCHING RECOMMENDATIONS FROM RAG ===\n")
 
-    subprocess.run(["python", "../rag/rag_engine.py", predicted_label])
-
+    subprocess.run([
+        "python",
+        "../rag/rag_engine.py",
+        predicted_label
+    ])
 
 
 predict_stress()
