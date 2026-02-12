@@ -138,15 +138,27 @@ def predict_stress():
 
     pred = model.predict(sample)[0]
 
-    labels = {
-        0: "LOW stress 🙂",
-        1: "MODERATE stress 😐",
-        2: "HIGH stress 😵"
+    # Map numeric class to clean label (for RAG)
+    label_map = {
+        0: "LOW",
+        1: "MODERATE",
+        2: "HIGH"
     }
 
-    print("\nPredicted Stress Level:", labels[pred])
+    predicted_label = label_map[pred]
+
+    print("\nPredicted Stress Level:", predicted_label)
+
+    # Call RAG
+    import subprocess
+
+    print("\n=== FETCHING RECOMMENDATIONS FROM RAG ===\n")
+
+    subprocess.run(["python", "rag_engine.py", predicted_label])
+
 
 
 predict_stress()
 
 print("=== ML MODEL SCRIPT COMPLETED ===")
+

@@ -1,12 +1,14 @@
+[HIGH]
 High stress levels can negatively affect productivity and mental health.
-Employees experiencing high stress should consider taking regular breaks,
-reducing overtime hours, and practicing mindfulness techniques.
+Employees should reduce overtime, take regular breaks, and practice mindfulness.
+Time management and delegation of tasks are recommended.
 
-Medium stress indicates manageable pressure, but long working hours and
-insufficient rest may increase burnout risk.
+[MODERATE]
+Medium stress indicates manageable pressure.
+Improving sleep quality and organizing tasks can help.
+Regular exercise reduces burnout risk.
 
-Low stress levels suggest good work-life balance. Maintaining consistent
-sleep schedules, regular exercise, and healthy boundaries is recommended.
-
-Organizations should encourage flexible work hours and wellness programs
-to reduce employee stress.
+[LOW]
+Low stress levels suggest good work-life balance.
+Maintain consistent routines and healthy boundaries.
+Continue engaging in wellness activities.

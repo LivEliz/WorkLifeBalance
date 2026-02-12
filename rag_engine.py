@@ -27,14 +27,21 @@ EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 # Utility Functions
 # =========================
 def load_knowledge_base(file_path):
-    """Load stress management documents"""
+    """Load stress management documents grouped by category"""
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Knowledge base not found at: {file_path}")
 
     with open(file_path, "r", encoding="utf-8") as file:
-        documents = file.readlines()
+        content = file.read()
 
-    return [doc.strip() for doc in documents if doc.strip()]
+    # Split into sections using blank lines
+    sections = content.split("\n\n")
+
+    # Remove empty sections
+    documents = [section.strip() for section in sections if section.strip()]
+
+    return documents
+
 
 
 def create_embeddings(documents, model):
@@ -61,47 +68,51 @@ def retrieve_relevant_docs(query, model, index, documents, top_k=2):
 # Main RAG Logic
 # =========================
 def generate_recommendation(stress_level):
-    """
-    Core RAG pipeline:
-    Stress level → Retrieve knowledge → Generate advice
-    """
-
-    # Load knowledge base
     documents = load_knowledge_base(KNOWLEDGE_BASE_PATH)
     print("Knowledge base loaded")
 
-    # Load embedding model
-    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+    # Direct section filtering (more reliable)
+    for doc in documents:
+        if f"[{stress_level.upper()}]" in doc:
+            return [doc]
 
-    # Create embeddings
+    # Fallback to semantic retrieval (if no direct match)
+    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
     doc_embeddings = create_embeddings(documents, model)
     print("Document embeddings created")
 
-    # Build FAISS index
     index = build_faiss_index(np.array(doc_embeddings))
     print("FAISS index created")
 
-    # Query construction
-    query = f"Stress management tips for {stress_level} stress level"
-
-    # Retrieve relevant content
-    relevant_docs = retrieve_relevant_docs(
-        query, model, index, documents
-    )
+    query = f"Stress management tips for {stress_level}"
+    relevant_docs = retrieve_relevant_docs(query, model, index, documents)
 
     return relevant_docs
+
+
 
 
 # =========================
 # Execution
 # =========================
 if __name__ == "__main__":
-    stress_level = "High"  # Example input from ML model
+    # Take stress level as input argument
+    import sys
+
+    if len(sys.argv) > 1:
+        stress_level = sys.argv[1]
+    else:
+        print("Please provide stress level (Low / Medium / High)")
+        sys.exit()
 
     recommendations = generate_recommendation(stress_level)
 
-    print(f"\nBased on your stress level ({stress_level}), here are some suggestions:")
+    print(f"\nBased on your stress level ({stress_level}), here are some suggestions:\n")
+
     for rec in recommendations:
-        print("-", rec)
+        cleaned = rec.replace(f"[{stress_level.upper()}]", "").strip()
+        print(cleaned)
 
 print("=== RAG ENGINE COMPLETED ===")
+
+
