@@ -1,14 +1,25 @@
 [HIGH]
-High stress levels can negatively affect productivity and mental health.
-Employees should reduce overtime, take regular breaks, and practice mindfulness.
-Time management and delegation of tasks are recommended.
+High stress levels are associated with serious health risks including coronary heart disease, hypertension, autoimmune diseases, obesity, migraines, and stroke. Chronic work-related stress increases risk of coronary heart disease by 1.4 times and is a major predictor of major depressive disorder and metabolic syndrome.
+Immediately reduce overtime hours and establish firm boundaries between work and personal time. Avoid checking work messages outside of working hours.
+Practice Mindfulness-Based Stress Reduction (MBSR) techniques such as body scan, breath-awareness meditation, and gentle yoga. Even short daily sessions of 10-20 minutes have measurable effects on stress reduction.
+Seek professional support or a structured stress management programme. Cognitive-behavioural interventions have shown medium to large reductions in stress (effect sizes d=0.44 to 1.70) and are the most evidence-supported approach.
+High stress is linked to low physical activity, poor sleep, overeating, and social isolation — address these together rather than in isolation.
+If you are a healthcare professional, be aware that burnout prevalence can reach 75% in medical settings and is an independent predictor of medical errors. Prioritise self-care as a professional responsibility.
 
 [MODERATE]
-Medium stress indicates manageable pressure.
-Improving sleep quality and organizing tasks can help.
-Regular exercise reduces burnout risk.
+Moderate stress indicates manageable but building pressure that should not be ignored. Left unaddressed, moderate stress can escalate to burnout, which involves emotional exhaustion, depersonalisation, and reduced personal accomplishment.
+Improve sleep quality by establishing a consistent sleep schedule. Mindfulness-based interventions have been shown to significantly improve sleep quality scores compared to non-mindfulness stress management approaches.
+Begin a mindfulness practice. Research meta-analyses show that MBSR produces moderate effects on anxiety (Hedge's g=0.55), depression (g=0.68), and overall distress even in non-clinical, healthy populations.
+Organise tasks using priority frameworks and delegate where possible to reduce cognitive load and time pressure.
+Engage in regular physical exercise. Chronic stress is directly associated with low physical activity, and exercise is a natural stress buffer that supports upward spiralling of positive well-being.
+Practice early detection of stress markers — notice physical sensations, mood changes, and thought patterns as early warning signs. Earlier detection creates more opportunity to choose a different response before stress escalates.
+Incorporate self-compassion practices. Research shows that changes in compassion measures correlate strongly with improvements in clinical stress and anxiety outcomes.
 
 [LOW]
-Low stress levels suggest good work-life balance.
-Maintain consistent routines and healthy boundaries.
-Continue engaging in wellness activities.
+Low stress levels suggest a healthy work-life balance. The goal at this stage is maintenance, resilience-building, and prevention.
+Maintain consistent daily routines including regular sleep, meals, physical activity, and social connection. Consistency reinforces psychological stability.
+Continue engaging in wellness activities such as mindfulness meditation, exercise, and hobbies. Mindfulness gains tend to increase over time — follow-up studies show effects are maintained and even grow stronger at 19 weeks post-intervention.
+Practice legitimising self-care — actively schedule time for personal well-being and treat it as non-negotiable, just as you would a work commitment.
+Build a personal stress-management toolkit so you are prepared when pressure increases. Knowing you have coping strategies available is itself a psychological asset that supports resilience.
+Cultivate an upward spiral of positive well-being by intentionally noticing and savouring positive moments during your day. This broadens attention to good experiences and further reduces the burden of any residual stress.
+Maintain healthy boundaries and communicate your limits clearly to colleagues and managers. Sustainable high performance depends on protecting personal energy and recovery time.
