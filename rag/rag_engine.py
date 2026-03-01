@@ -75,49 +75,18 @@ def retrieve_relevant_docs(query, model, index, documents, top_k=2):
 # =========================
 def generate_recommendation(stress_level):
     documents = load_knowledge_base(KNOWLEDGE_BASE_PATH)
-    print("Knowledge base loaded")
 
-    # Direct section filtering (more reliable)
     for doc in documents:
         if f"[{stress_level.upper()}]" in doc:
-            return [doc]
+            cleaned = doc.replace(f"[{stress_level.upper()}]", "").strip()
+            return cleaned
 
-    # Fallback to semantic retrieval (if no direct match)
-    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
-    doc_embeddings = create_embeddings(documents, model)
-    print("Document embeddings created")
-
-    index = build_faiss_index(np.array(doc_embeddings))
-    print("FAISS index created")
-
-    query = f"Stress management tips for {stress_level}"
-    relevant_docs = retrieve_relevant_docs(query, model, index, documents)
-
-    return relevant_docs
+    return "No recommendations found."
 
 
 
 
-# =========================
-# Execution
-# =========================
-if __name__ == "__main__":
-    # Take stress level as input argument
-    import sys
 
-    if len(sys.argv) > 1:
-        stress_level = sys.argv[1]
-    else:
-        print("Please provide stress level (Low / Medium / High)")
-        sys.exit()
-
-    recommendations = generate_recommendation(stress_level)
-
-    print(f"\nBased on your stress level ({stress_level}), here are some suggestions:\n")
-
-    for rec in recommendations:
-        cleaned = rec.replace(f"[{stress_level.upper()}]", "").strip()
-        print(cleaned)
 
 print("=== RAG ENGINE COMPLETED ===")
 
