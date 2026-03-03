@@ -1,25 +1,94 @@
-[HIGH]
-High stress levels are associated with serious health risks including coronary heart disease, hypertension, autoimmune diseases, obesity, migraines, and stroke. Chronic work-related stress increases risk of coronary heart disease by 1.4 times and is a major predictor of major depressive disorder and metabolic syndrome.
-Immediately reduce overtime hours and establish firm boundaries between work and personal time. Avoid checking work messages outside of working hours.
-Practice Mindfulness-Based Stress Reduction (MBSR) techniques such as body scan, breath-awareness meditation, and gentle yoga. Even short daily sessions of 10-20 minutes have measurable effects on stress reduction.
-Seek professional support or a structured stress management programme. Cognitive-behavioural interventions have shown medium to large reductions in stress (effect sizes d=0.44 to 1.70) and are the most evidence-supported approach.
-High stress is linked to low physical activity, poor sleep, overeating, and social isolation — address these together rather than in isolation.
-If you are a healthcare professional, be aware that burnout prevalence can reach 75% in medical settings and is an independent predictor of medical errors. Prioritise self-care as a professional responsibility.
+[
+  {
+    "stress_level": "HIGH",
+    "topic": "overtime_excess",
+    "content": "Consistently working more than 10–12 hours of overtime per week significantly increases the risk of burnout, cardiovascular strain, and emotional exhaustion. Prolonged overtime reduces psychological recovery time and keeps cortisol levels elevated, preventing the nervous system from returning to baseline."
+  },
+  {
+    "stress_level": "HIGH",
+    "topic": "sleep_less_than_7_hours",
+    "content": "Sleeping less than 7 hours per night impairs emotional regulation, reduces attention control, and increases irritability. Chronic sleep restriction heightens stress reactivity and reduces resilience, making work pressures feel more overwhelming than they objectively are."
+  },
+  {
+    "stress_level": "HIGH",
+    "topic": "high_workload_multiple_projects",
+    "content": "Managing a high number of simultaneous projects increases cognitive overload and decision fatigue. When workload exceeds perceived control, it becomes one of the strongest predictors of occupational burnout and chronic stress disorders."
+  },
+  {
+    "stress_level": "HIGH",
+    "topic": "low_job_satisfaction",
+    "content": "Low job satisfaction combined with high effort creates an effort–reward imbalance. This imbalance is strongly associated with emotional exhaustion, depressive symptoms, and disengagement. When effort is not matched by recognition or meaning, stress becomes psychologically corrosive."
+  },
+  {
+    "stress_level": "HIGH",
+    "topic": "poor_detachment_from_work",
+    "content": "Inability to mentally disconnect from work during evenings or weekends prevents physiological recovery. Continuous rumination about work tasks keeps the stress response activated, increasing long-term health risks and reducing sleep quality."
+  },
+  {
+    "stress_level": "HIGH",
+    "topic": "low_family_time_high_pressure",
+    "content": "Limited time with family or supportive relationships reduces emotional buffering against stress. Social isolation during periods of high workload significantly increases vulnerability to burnout and emotional fatigue."
+  },
 
-[MODERATE]
-Moderate stress indicates manageable but building pressure that should not be ignored. Left unaddressed, moderate stress can escalate to burnout, which involves emotional exhaustion, depersonalisation, and reduced personal accomplishment.
-Improve sleep quality by establishing a consistent sleep schedule. Mindfulness-based interventions have been shown to significantly improve sleep quality scores compared to non-mindfulness stress management approaches.
-Begin a mindfulness practice. Research meta-analyses show that MBSR produces moderate effects on anxiety (Hedge's g=0.55), depression (g=0.68), and overall distress even in non-clinical, healthy populations.
-Organise tasks using priority frameworks and delegate where possible to reduce cognitive load and time pressure.
-Engage in regular physical exercise. Chronic stress is directly associated with low physical activity, and exercise is a natural stress buffer that supports upward spiralling of positive well-being.
-Practice early detection of stress markers — notice physical sensations, mood changes, and thought patterns as early warning signs. Earlier detection creates more opportunity to choose a different response before stress escalates.
-Incorporate self-compassion practices. Research shows that changes in compassion measures correlate strongly with improvements in clinical stress and anxiety outcomes.
+  {
+    "stress_level": "MODERATE",
+    "topic": "sleep_between_6_and_7_hours",
+    "content": "Sleeping between 6–7 hours per night may feel manageable short term, but it gradually accumulates sleep debt. Even mild chronic sleep restriction reduces cognitive flexibility, slows reaction time, and increases sensitivity to workplace stressors."
+  },
+  {
+    "stress_level": "MODERATE",
+    "topic": "role_ambiguity_unclear_expectations",
+    "content": "Unclear job roles, shifting expectations, or lack of feedback increase psychological strain. Role ambiguity creates uncertainty, which is cognitively taxing and can sustain moderate but persistent stress levels."
+  },
+  {
+    "stress_level": "MODERATE",
+    "topic": "moderate_overtime",
+    "content": "Working 5–10 hours of overtime per week increases time pressure and reduces recovery opportunities. While not immediately harmful, sustained moderate overtime can gradually escalate into chronic stress if not managed."
+  },
+  {
+    "stress_level": "MODERATE",
+    "topic": "physical_inactivity",
+    "content": "Low levels of physical activity weaken the body's natural stress regulation mechanisms. Regular movement supports emotional regulation and improves stress tolerance by reducing physiological arousal."
+  },
+  {
+    "stress_level": "MODERATE",
+    "topic": "early_burnout_symptoms",
+    "content": "Early warning signs of burnout include persistent fatigue, reduced motivation, mild cynicism, and decreased concentration. Recognising these symptoms early provides an opportunity to intervene before stress escalates."
+  },
+  {
+    "stress_level": "MODERATE",
+    "topic": "reduced_sleep_quality",
+    "content": "Even if total sleep duration appears adequate, poor sleep quality — such as frequent awakenings or difficulty falling asleep — increases next-day stress sensitivity and emotional instability."
+  },
 
-[LOW]
-Low stress levels suggest a healthy work-life balance. The goal at this stage is maintenance, resilience-building, and prevention.
-Maintain consistent daily routines including regular sleep, meals, physical activity, and social connection. Consistency reinforces psychological stability.
-Continue engaging in wellness activities such as mindfulness meditation, exercise, and hobbies. Mindfulness gains tend to increase over time — follow-up studies show effects are maintained and even grow stronger at 19 weeks post-intervention.
-Practice legitimising self-care — actively schedule time for personal well-being and treat it as non-negotiable, just as you would a work commitment.
-Build a personal stress-management toolkit so you are prepared when pressure increases. Knowing you have coping strategies available is itself a psychological asset that supports resilience.
-Cultivate an upward spiral of positive well-being by intentionally noticing and savouring positive moments during your day. This broadens attention to good experiences and further reduces the burden of any residual stress.
-Maintain healthy boundaries and communicate your limits clearly to colleagues and managers. Sustainable high performance depends on protecting personal energy and recovery time.
+  {
+    "stress_level": "LOW",
+    "topic": "sleep_between_7_and_9_hours",
+    "content": "Sleeping 7–9 hours per night supports optimal cognitive functioning, emotional balance, and stress resilience. Adequate sleep enhances adaptive stress responses and strengthens long-term psychological health."
+  },
+  {
+    "stress_level": "LOW",
+    "topic": "balanced_project_load",
+    "content": "Managing a realistic number of projects with clear deadlines reduces cognitive overload and supports sustained productivity without unnecessary stress accumulation."
+  },
+  {
+    "stress_level": "LOW",
+    "topic": "healthy_work_boundaries",
+    "content": "Maintaining clear boundaries between work and personal time preserves recovery capacity. Employees who consistently disconnect after work hours report significantly lower perceived stress levels."
+  },
+  {
+    "stress_level": "LOW",
+    "topic": "regular_exercise_150_minutes",
+    "content": "Engaging in at least 150 minutes of moderate physical activity per week improves mood regulation, lowers physiological stress markers, and enhances overall resilience."
+  },
+  {
+    "stress_level": "LOW",
+    "topic": "strong_social_support",
+    "content": "Strong family and social support networks buffer the effects of temporary work stress. Social connection reduces perceived stress and promotes psychological stability."
+  },
+  {
+    "stress_level": "LOW",
+    "topic": "high_autonomy_control",
+    "content": "Having control over work pace and decision-making reduces stress impact. Perceived autonomy moderates the negative effects of high workload and supports long-term well-being."
+  }
+]
