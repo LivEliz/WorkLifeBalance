@@ -12,7 +12,11 @@ from sklearn.preprocessing import MinMaxScaler
 # -------------------------------------------------
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_PATH = os.path.join(BASE_DIR, "..", "data", "clean_employee_data.csv")
+
+# Go TWO levels up (models → app → project root)
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
+
+DATA_PATH = os.path.join(PROJECT_ROOT, "data", "clean_employee_data.csv")
 
 df = pd.read_csv(DATA_PATH)
 
@@ -159,7 +163,10 @@ def predict_stress(user_data: dict):
     # Predict Label using model
     # ---------
 
-    sample_scaled = model_scaler.transform(sample)
+    # Keep only training features (VERY IMPORTANT)
+    sample_model_features = sample[features]
+
+    sample_scaled = model_scaler.transform(sample_model_features)
     pred = model.predict(sample_scaled)[0]
 
     label_map = {
