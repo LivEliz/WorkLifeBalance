@@ -1,20 +1,57 @@
 # app/main.py
-from fastapi import FastAPI
-from app.models.schemas import StressInput
+
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import JWTError, jwt
+from datetime import datetime, timedelta
+
+from app.models.schemas import StressInput, UserSignup, WeeklyUpdate
 from app.services.stress_service import get_stress_analysis
+from app.services.llm_service import generate_recommendations
+from app.database.mongo import users_collection, weekly_logs_collection
 
 app = FastAPI()
 
+# =========================
+# JWT CONFIG
+# =========================
+SECRET_KEY = "supersecretkey"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+security = HTTPBearer()
+
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("email")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return email
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+# =========================
+# ANALYZE (UNPROTECTED)
+# =========================
 @app.post("/analyze")
 def analyze(input_data: StressInput):
     return get_stress_analysis(input_data)
 
-from app.database.mongo import users_collection
 
-from datetime import datetime
-from app.database.mongo import users_collection
-from app.models.schemas import UserSignup
-
+# =========================
+# SIGNUP
+# =========================
 @app.post("/signup")
 def signup(user: UserSignup):
 
@@ -24,9 +61,12 @@ def signup(user: UserSignup):
         return {"error": "User already exists"}
 
     user_data = {
+        "name": user.name,
+        "age": user.age,
         "email": user.email,
-        "password": user.password,  # ⚠ later we will hash this
+        "password": user.password,  # simple compare (no hashing)
         "work_field": user.work_field,
+        "normal_sleep_hours": user.normal_sleep_hours,
         "normal_work_hours": user.normal_work_hours,
         "created_at": datetime.utcnow()
     }
@@ -35,23 +75,77 @@ def signup(user: UserSignup):
 
     return {"message": "User created successfully"}
 
-from app.models.schemas import WeeklyUpdate
-from app.database.mongo import weekly_logs_collection, users_collection
-from datetime import datetime
-from app.services.stress_service import get_stress_analysis
 
+# =========================
+# LOGIN
+# =========================
+from pydantic import BaseModel
+
+class LoginInput(BaseModel):
+    email: str
+    password: str
+
+
+@app.post("/login")
+def login(user: LoginInput):
+
+    existing_user = users_collection.find_one({"email": user.email})
+
+    if not existing_user:
+        raise HTTPException(status_code=400, detail="User not found")
+
+    # Simple string comparison
+    if existing_user["password"] != user.password:
+        raise HTTPException(status_code=400, detail="Incorrect password")
+
+    token = create_access_token({"email": user.email})
+
+    return {
+        "message": "Login successful",
+        "access_token": token,
+        "token_type": "bearer"
+    }
+
+
+# =========================
+# WEEKLY UPDATE (PROTECTED)
+# =========================
 @app.post("/weekly-update")
-def weekly_update(data: WeeklyUpdate):
+def weekly_update(
+    data: WeeklyUpdate,
+    current_user: str = Depends(get_current_user)
+):
 
-    # Check if user exists
+    # Ensure token email matches request email
+    if current_user != data.email:
+        raise HTTPException(status_code=403, detail="Unauthorized action")
+
     user = users_collection.find_one({"email": data.email})
     if not user:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
 
-    # Run ML prediction
+    # ML prediction
     stress_result = get_stress_analysis(data.dict())
 
-    # Save weekly log
+    # Prepare LLM input
+    llm_input = {
+        "stress_level": stress_result["stress_level"],
+        "stress_percentage": stress_result["stress_percentage"],
+        "Work_Hours_Per_Week": data.weekly_hours,
+        "Overtime_Hours": data.overtime_hours,
+        "Employee_Satisfaction_Score": data.satisfaction_score,
+        "Projects_Handled": data.projects_handled,
+        "Sick_Days": data.sick_days,
+        "Performance_Score": 3,
+        "name": user.get("name"),
+        "age": user.get("age"),
+        "work_field": user.get("work_field"),
+        "normal_sleep_hours": user.get("normal_sleep_hours"),
+        "normal_work_hours": user.get("normal_work_hours")
+    }
+
+    ai_output = generate_recommendations(llm_input)
+
     weekly_data = {
         "email": data.email,
         "weekly_hours": data.weekly_hours,
@@ -62,33 +156,28 @@ def weekly_update(data: WeeklyUpdate):
         "sick_days": data.sick_days,
         "stress_score": stress_result["stress_percentage"],
         "stress_label": stress_result["stress_level"],
+        "recommendations": ai_output.get("recommendations"),
+        "weekly_checklist": ai_output.get("weekly_checklist"),
         "created_at": datetime.utcnow()
     }
 
     weekly_logs_collection.insert_one(weekly_data)
 
-    return stress_result
-"""    
-from fastapi import FastAPI
-from app.services.stress_service import get_stress_analysis
-from app.services.rag_service import get_recommendations
-
-app = FastAPI()
-
-@app.post("/analyze")
-def analyze(user_data: dict):
-
-    stress_result = get_stress_analysis(user_data)
-
-    recommendations = get_recommendations(
-        user_data,
-        stress_result["stress_level"],
-        stress_result["stress_percentage"]
-    )
-
     return {
         "stress_level": stress_result["stress_level"],
         "stress_percentage": stress_result["stress_percentage"],
-        "recommendations": recommendations
+        "recommendations": ai_output.get("recommendations"),
+        "weekly_checklist": ai_output.get("weekly_checklist")
     }
-    """
+
+
+# =========================
+# DELETE ACCOUNT (PROTECTED)
+# =========================
+@app.delete("/delete-account")
+def delete_account(current_user: str = Depends(get_current_user)):
+
+    users_collection.delete_one({"email": current_user})
+    weekly_logs_collection.delete_many({"email": current_user})
+
+    return {"message": "Account deleted successfully"}

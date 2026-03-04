@@ -10,12 +10,17 @@ class StressInput(BaseModel):
     sleep_hours: float
     sick_days: int
 
+
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 class UserSignup(BaseModel):
+    name: str
+    age: int
     email: EmailStr
     password: str
     work_field: str
+    normal_sleep_hours: float
     normal_work_hours: float
 
 class WeeklyUpdate(BaseModel):

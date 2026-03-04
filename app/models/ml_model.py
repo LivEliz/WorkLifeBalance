@@ -164,17 +164,11 @@ def predict_stress(user_data: dict):
     # ---------
 
     # Keep only training features (VERY IMPORTANT)
-    sample_model_features = sample[features]
-
-    sample_scaled = model_scaler.transform(sample_model_features)
-    pred = model.predict(sample_scaled)[0]
-
-    label_map = {
-        0: "LOW",
-        1: "MODERATE",
-        2: "HIGH"
-    }
-
-    stress_level = label_map[pred]
+    if stress_percentage < 33:
+        stress_level = "LOW"
+    elif stress_percentage < 66:
+        stress_level = "MODERATE"
+    else:
+        stress_level = "HIGH"
 
     return stress_level, stress_percentage
