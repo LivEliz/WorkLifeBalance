@@ -181,3 +181,43 @@ def delete_account(current_user: str = Depends(get_current_user)):
     weekly_logs_collection.delete_many({"email": current_user})
 
     return {"message": "Account deleted successfully"}
+
+@app.get("/stress-trend")
+def stress_trend(current_user: str = Depends(get_current_user)):
+
+    # Fetch all weekly logs for the user
+    logs = list(
+        weekly_logs_collection
+        .find({"email": current_user})
+        .sort("created_at", 1)
+    )
+
+    if len(logs) < 2:
+        return {
+            "message": "Not enough data to calculate trend",
+            "data_points": len(logs)
+        }
+
+    # Extract stress scores
+    stress_scores = [log["stress_score"] for log in logs]
+
+    current_stress = stress_scores[-1]
+    previous_stress = stress_scores[-2]
+
+    change = round(current_stress - previous_stress, 2)
+
+    if change > 0:
+        trend = "Increasing"
+    elif change < 0:
+        trend = "Decreasing"
+    else:
+        trend = "Stable"
+
+    return {
+        "current_stress": current_stress,
+        "previous_stress": previous_stress,
+        "change": change,
+        "trend": trend,
+        "total_weeks_tracked": len(stress_scores),
+        "last_5_weeks": stress_scores[-5:]
+    }
