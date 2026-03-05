@@ -1,12 +1,4 @@
-.cache/
-# Python virtual environment
-venv/
-.env/
 
-# Python cache
-__pycache__/
-*.pyc
-*.pkl
 
 # IDE files
 .vscode/
@@ -15,3 +7,15 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+
+.cache/
+venv/
+*.pyo
+*.pyd
+.env
+*.log
+.ipynb_checkpoints
+
+*.pkl
+__pycache__/
+*.pyc
