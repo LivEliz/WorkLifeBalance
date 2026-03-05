@@ -1,21 +1,10 @@
-
-
-# IDE files
-.vscode/
-.idea/
-
-# OS files
-.DS_Store
-Thumbs.db
-
 .cache/
 venv/
-*.pyo
-*.pyd
-.env
-*.log
-.ipynb_checkpoints
-
-*.pkl
+.env/
 __pycache__/
 *.pyc
+*.pkl
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
