@@ -1,20 +1,31 @@
 # app/main.py
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 
-from app.models.schemas import StressInput, UserSignup, WeeklyUpdate
-from app.services.stress_service import get_stress_analysis
+from app.models.schemas import (
+    UserSignup,
+    UserProfile,
+    WeeklyCheckin
+)
+
+from app.services.stress_service import get_wlb_analysis
 from app.services.llm_service import generate_recommendations
-from app.database.mongo import users_collection, weekly_logs_collection
+
+from app.database.mongo import (
+    users_collection,
+    weekly_logs_collection,
+    wlb_results_collection
+)
 
 app = FastAPI()
 
 # =========================
 # JWT CONFIG
 # =========================
+
 SECRET_KEY = "supersecretkey"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
@@ -30,48 +41,41 @@ def create_access_token(data: dict):
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+
     token = credentials.credentials
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("email")
+
         if email is None:
             raise HTTPException(status_code=401, detail="Invalid token")
+
         return email
+
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
 # =========================
-# ANALYZE (UNPROTECTED)
-# =========================
-@app.post("/analyze")
-def analyze(input_data: StressInput):
-    return get_stress_analysis(input_data)
-
-
-# =========================
 # SIGNUP
 # =========================
+
 @app.post("/signup")
 def signup(user: UserSignup):
 
     existing_user = users_collection.find_one({"email": user.email})
 
     if existing_user:
-        return {"error": "User already exists"}
+        raise HTTPException(status_code=400, detail="User already exists")
 
-    user_data = {
+    users_collection.insert_one({
         "name": user.name,
         "age": user.age,
         "email": user.email,
-        "password": user.password,  # simple compare (no hashing)
-        "work_field": user.work_field,
-        "normal_sleep_hours": user.normal_sleep_hours,
-        "normal_work_hours": user.normal_work_hours,
+        "password": user.password,
         "created_at": datetime.utcnow()
-    }
-
-    users_collection.insert_one(user_data)
+    })
 
     return {"message": "User created successfully"}
 
@@ -79,6 +83,7 @@ def signup(user: UserSignup):
 # =========================
 # LOGIN
 # =========================
+
 from pydantic import BaseModel
 
 class LoginInput(BaseModel):
@@ -94,7 +99,6 @@ def login(user: LoginInput):
     if not existing_user:
         raise HTTPException(status_code=400, detail="User not found")
 
-    # Simple string comparison
     if existing_user["password"] != user.password:
         raise HTTPException(status_code=400, detail="Incorrect password")
 
@@ -108,84 +112,151 @@ def login(user: LoginInput):
 
 
 # =========================
-# WEEKLY UPDATE (PROTECTED)
+# PROFILE QUESTIONNAIRE
 # =========================
-@app.post("/weekly-update")
-def weekly_update(
-    data: WeeklyUpdate,
+
+@app.post("/profile-setup")
+def profile_setup(
+    profile: UserProfile,
     current_user: str = Depends(get_current_user)
 ):
 
-    # Ensure token email matches request email
+    if current_user != profile.email:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    users_collection.update_one(
+        {"email": profile.email},
+        {"$set": profile.dict()}
+    )
+
+    return {"message": "Profile saved successfully"}
+
+
+# =========================
+# WEEKLY CHECKIN
+# =========================
+@app.post("/weekly-checkin")
+def weekly_checkin(
+    data: WeeklyCheckin,
+    current_user: str = Depends(get_current_user)
+):
+
     if current_user != data.email:
-        raise HTTPException(status_code=403, detail="Unauthorized action")
+        raise HTTPException(status_code=403, detail="Unauthorized")
 
     user = users_collection.find_one({"email": data.email})
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # ML prediction
-    stress_result = get_stress_analysis(data.dict())
+    # ------------------------------------------------
+    # Prepare ML Model Input
+    # ------------------------------------------------
 
-    # Prepare LLM input
+    ml_input = {
+        "hours_worked": data.hours_worked,
+        "overtime_hours": data.overtime_hours,
+        "projects_handled": data.projects_handled,
+        "meetings_count": data.meetings_count,
+
+        "workload_rating": data.workload_rating,
+        "deadline_pressure": data.deadline_pressure,
+
+        "productivity_rating": data.productivity_rating,
+        "task_delay": data.task_delay,
+
+        "breaks": data.breaks,
+        "break_duration": data.break_duration,
+
+        "sick_days": data.sick_days,
+        "leave_days": data.leave_days,
+        "exhaustion_rating": data.exhaustion_rating,
+
+        "travel": data.travel,
+        "travel_enjoyment": data.travel_enjoyment,
+
+        "family_time": data.family_time,
+        "social_satisfaction": data.social_satisfaction,
+
+        # From profile setup
+        "commute_time": user.get("commute_time")
+    }
+
+    # ------------------------------------------------
+    # ML Prediction
+    # ------------------------------------------------
+
+    wlb_result = get_wlb_analysis(ml_input)
+
+    # ------------------------------------------------
+    # LLM Recommendation Input
+    # ------------------------------------------------
+
     llm_input = {
-        "stress_level": stress_result["stress_level"],
-        "stress_percentage": stress_result["stress_percentage"],
-        "Work_Hours_Per_Week": data.weekly_hours,
-        "Overtime_Hours": data.overtime_hours,
-        "Employee_Satisfaction_Score": data.satisfaction_score,
-        "Projects_Handled": data.projects_handled,
-        "Sick_Days": data.sick_days,
-        "Performance_Score": 3,
+
+        # Profile info
         "name": user.get("name"),
         "age": user.get("age"),
-        "work_field": user.get("work_field"),
-        "normal_sleep_hours": user.get("normal_sleep_hours"),
-        "normal_work_hours": user.get("normal_work_hours")
+        "department": user.get("department"),
+        "role_level": user.get("role_level"),
+        "work_mode": user.get("work_mode"),
+        "commute_time": user.get("commute_time"),
+
+        # Weekly checkin
+        **data.dict(),
+
+        # ML output
+        "wlb_score": wlb_result["wlb_score"],
+        "wlb_label": wlb_result["wlb_label"],
+        "confidence": wlb_result["confidence"]
     }
 
     ai_output = generate_recommendations(llm_input)
 
-    weekly_data = {
-        "email": data.email,
-        "weekly_hours": data.weekly_hours,
-        "overtime_hours": data.overtime_hours,
-        "satisfaction_score": data.satisfaction_score,
-        "projects_handled": data.projects_handled,
-        "sleep_hours": data.sleep_hours,
-        "sick_days": data.sick_days,
-        "stress_score": stress_result["stress_percentage"],
-        "stress_label": stress_result["stress_level"],
+    # ------------------------------------------------
+    # Save Weekly Log
+    # ------------------------------------------------
+
+    weekly_logs_collection.insert_one({
+        **data.dict(),
+        "wlb_score": wlb_result["wlb_score"],
+        "wlb_label": wlb_result["wlb_label"],
+        "confidence": wlb_result["confidence"],
         "recommendations": ai_output.get("recommendations"),
         "weekly_checklist": ai_output.get("weekly_checklist"),
         "created_at": datetime.utcnow()
-    }
+    })
 
-    weekly_logs_collection.insert_one(weekly_data)
+    # Store ML result separately
+
+    wlb_results_collection.insert_one({
+        "email": data.email,
+        "wlb_score": wlb_result["wlb_score"],
+        "wlb_label": wlb_result["wlb_label"],
+        "confidence": wlb_result["confidence"],
+        "created_at": datetime.utcnow()
+    })
+
+    # ------------------------------------------------
+    # API Response
+    # ------------------------------------------------
 
     return {
-        "stress_level": stress_result["stress_level"],
-        "stress_percentage": stress_result["stress_percentage"],
+        "wlb_score": wlb_result["wlb_score"],
+        "wlb_label": wlb_result["wlb_label"],
+        "confidence": wlb_result["confidence"],
         "recommendations": ai_output.get("recommendations"),
         "weekly_checklist": ai_output.get("weekly_checklist")
     }
 
 
 # =========================
-# DELETE ACCOUNT (PROTECTED)
+# WLB TREND
 # =========================
-@app.delete("/delete-account")
-def delete_account(current_user: str = Depends(get_current_user)):
 
-    users_collection.delete_one({"email": current_user})
-    weekly_logs_collection.delete_many({"email": current_user})
+@app.get("/wlb-trend")
+def wlb_trend(current_user: str = Depends(get_current_user)):
 
-    return {"message": "Account deleted successfully"}
-
-@app.get("/stress-trend")
-def stress_trend(current_user: str = Depends(get_current_user)):
-
-    # Fetch all weekly logs for the user
     logs = list(
         weekly_logs_collection
         .find({"email": current_user})
@@ -198,26 +269,39 @@ def stress_trend(current_user: str = Depends(get_current_user)):
             "data_points": len(logs)
         }
 
-    # Extract stress scores
-    stress_scores = [log["stress_score"] for log in logs]
+    scores = [log["wlb_score"] for log in logs]
 
-    current_stress = stress_scores[-1]
-    previous_stress = stress_scores[-2]
+    current_score = scores[-1]
+    previous_score = scores[-2]
 
-    change = round(current_stress - previous_stress, 2)
+    change = round(current_score - previous_score, 2)
 
     if change > 0:
-        trend = "Increasing"
+        trend = "Improving"
     elif change < 0:
-        trend = "Decreasing"
+        trend = "Declining"
     else:
         trend = "Stable"
 
     return {
-        "current_stress": current_stress,
-        "previous_stress": previous_stress,
+        "current_wlb_score": current_score,
+        "previous_wlb_score": previous_score,
         "change": change,
         "trend": trend,
-        "total_weeks_tracked": len(stress_scores),
-        "last_5_weeks": stress_scores[-5:]
+        "total_weeks_tracked": len(scores),
+        "last_5_weeks": scores[-5:]
     }
+
+
+# =========================
+# DELETE ACCOUNT
+# =========================
+
+@app.delete("/delete-account")
+def delete_account(current_user: str = Depends(get_current_user)):
+
+    users_collection.delete_one({"email": current_user})
+    weekly_logs_collection.delete_many({"email": current_user})
+    wlb_results_collection.delete_many({"email": current_user})
+
+    return {"message": "Account deleted successfully"}

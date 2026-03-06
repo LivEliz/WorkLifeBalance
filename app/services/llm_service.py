@@ -6,62 +6,101 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "phi3:mini"
 
 
-def generate_recommendations(stress_data: dict) -> dict:
+def generate_recommendations(wlb_data: dict) -> dict:
     """
     Calls local Ollama model to generate personalized recommendations
-    based on stress prediction and weekly metrics.
+    based on Work-Life Balance analysis and questionnaire inputs.
     """
-    # Retrieve relevant knowledge from RAG
+
+    # -------------------------------------------------
+    # Retrieve RAG Knowledge
+    # -------------------------------------------------
+
     rag_context = generate_recommendation(
-        user_data=stress_data,
-        stress_level=stress_data.get("stress_level"),
-        stress_percentage=stress_data.get("stress_percentage"),
+        user_data=wlb_data,
+        wlb_label=wlb_data.get("wlb_label"),
+        wlb_score=wlb_data.get("wlb_score"),
         top_k=4
     )
+
+    # -------------------------------------------------
+    # Prompt
+    # -------------------------------------------------
+
     prompt = f"""
-    You are a workplace wellness assistant.
+You are an AI workplace wellness assistant helping employees improve their work‑life balance.
 
-    
-    Use the following expert knowledge when generating advice:
+Use the following expert knowledge when generating advice:
 
-    {rag_context}
+{rag_context}
 
-    ------------------------------------
-    User Profile:
-    Name: {stress_data.get("name", "User")}
-    Age: {stress_data.get("age", "Not specified")}
-    Job Field: {stress_data.get("work_field", "Not specified")}
-    Normal Sleep: {stress_data.get("normal_sleep_hours", "Not specified")} hours
-    Normal Work Hours: {stress_data.get("normal_work_hours", "Not specified")} hours/day
+------------------------------------
 
-    Current Weekly Metrics:
-    Stress Level: {stress_data.get("stress_level")}
-    Stress Percentage: {stress_data.get("stress_percentage")}
-    Work Hours Per Week: {stress_data.get("Work_Hours_Per_Week")}
-    Overtime Hours: {stress_data.get("Overtime_Hours")}
-    Employee Satisfaction Score: {stress_data.get("Employee_Satisfaction_Score")}
-    Projects Handled: {stress_data.get("Projects_Handled")}
-    Sick Days: {stress_data.get("Sick_Days")}
-    Performance Score: {stress_data.get("Performance_Score")}
+User Profile
+Name: {wlb_data.get("name", "User")}
+Age: {wlb_data.get("age", "Not specified")}
+Department: {wlb_data.get("department", "Not specified")}
+Role Level: {wlb_data.get("role_level", "Not specified")}
+Work Mode: {wlb_data.get("work_mode", "Not specified")}
+Commute Time: {wlb_data.get("commute_time", "Not specified")}
 
-    Generate:
+------------------------------------
 
-    1. Three personalized recommendations.
-    2. A 5-item weekly actionable checklist.
+Weekly Work Metrics
+Hours Worked: {wlb_data.get("hours_worked")}
+Overtime Hours: {wlb_data.get("overtime_hours")}
+Projects Handled: {wlb_data.get("projects_handled")}
+Meetings Attended: {wlb_data.get("meetings_count")}
 
-    Return the response in JSON format like this:
+Workload Rating: {wlb_data.get("workload_rating")}
+Deadline Pressure: {wlb_data.get("deadline_pressure")}
+Productivity Rating: {wlb_data.get("productivity_rating")}
+Task Delay Frequency: {wlb_data.get("task_delay")}
 
-    {{
-    "recommendations": ["...", "...", "..."],
-    "weekly_checklist": ["...", "...", "...", "...", "..."]
-    }}
+Breaks Per Day: {wlb_data.get("breaks")}
+Break Duration: {wlb_data.get("break_duration")}
 
-    Return ONLY raw JSON.
-    Do NOT use markdown.
-    Do NOT wrap the output in triple backticks.
-    Do NOT add explanations.
-    Output must be valid JSON only.
-    """
+Sick Days: {wlb_data.get("sick_days")}
+Leave Days: {wlb_data.get("leave_days")}
+Exhaustion Level: {wlb_data.get("exhaustion_rating")}
+
+Work Travel: {wlb_data.get("travel")}
+Travel Experience: {wlb_data.get("travel_enjoyment")}
+
+Family / Social Time: {wlb_data.get("family_time")}
+Social Satisfaction: {wlb_data.get("social_satisfaction")}
+
+------------------------------------
+
+Work-Life Balance Prediction
+WLB Score: {wlb_data.get("wlb_score")}
+WLB Label: {wlb_data.get("wlb_label")}
+Model Confidence: {wlb_data.get("confidence")}
+
+------------------------------------
+
+Generate:
+
+1. Three personalized recommendations to improve work-life balance.
+2. A 5-item weekly actionable checklist the user can follow.
+
+Return the response strictly in JSON format like this:
+
+{{
+"recommendations": ["...", "...", "..."],
+"weekly_checklist": ["...", "...", "...", "...", "..."]
+}}
+
+Return ONLY raw JSON.
+Do NOT use markdown.
+Do NOT wrap the output in backticks.
+Do NOT include explanations.
+Output must be valid JSON only.
+"""
+
+    # -------------------------------------------------
+    # Ollama Request
+    # -------------------------------------------------
 
     payload = {
         "model": MODEL_NAME,
@@ -78,24 +117,29 @@ def generate_recommendations(stress_data: dict) -> dict:
 
     model_output = result.get("response", "").strip()
 
-    # Remove markdown blocks if present
+    # -------------------------------------------------
+    # Clean model output
+    # -------------------------------------------------
+
     if "```" in model_output:
         model_output = model_output.split("```")[1]
 
-# Remove leading 'json' if model prints it
     if model_output.lower().startswith("json"):
         model_output = model_output[4:].strip()
 
-# Attempt JSON parsing
+    # -------------------------------------------------
+    # Parse JSON
+    # -------------------------------------------------
+
     try:
         parsed = json.loads(model_output)
         return parsed
+
     except json.JSONDecodeError:
         print("⚠ JSON Parsing Failed. Raw Output:")
         print(model_output)
 
-    return {
-        "recommendations": [model_output],
-        "weekly_checklist": []
-    }
-    
+        return {
+            "recommendations": [model_output],
+            "weekly_checklist": []
+        }

@@ -2,11 +2,12 @@
 
 from app.rag.rag_engine import generate_recommendation
 
-def get_recommendations(user_data, stress_level, stress_percentage):
+def get_recommendations(user_data, wlb_label, wlb_score):
+    
     recommendations = generate_recommendation(
         user_data,
-        stress_level,
-        stress_percentage
+        wlb_label,
+        wlb_score
     )
 
     return recommendations

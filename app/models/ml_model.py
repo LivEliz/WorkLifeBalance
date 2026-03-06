@@ -3,172 +3,206 @@ print("=== ML MODEL MODULE LOADED ===")
 import pandas as pd
 import numpy as np
 import os
+
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.ensemble import RandomForestClassifier
 
 # -------------------------------------------------
 # Load Dataset
 # -------------------------------------------------
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Go TWO levels up (models → app → project root)
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
 
-DATA_PATH = os.path.join(PROJECT_ROOT, "data", "clean_employee_data.csv")
+DATA_PATH = os.path.join(PROJECT_ROOT, "data", "weekly_worklife_dataset.csv")
 
 df = pd.read_csv(DATA_PATH)
 
-# -------------------------------------------------
-# 1️⃣ Normalize Satisfaction & Performance (1–5 → 0–1)
-# -------------------------------------------------
-
-sat_perf_scaler = MinMaxScaler()
-df[["Employee_Satisfaction_Score", "Performance_Score"]] = \
-    sat_perf_scaler.fit_transform(
-        df[["Employee_Satisfaction_Score", "Performance_Score"]]
-    )
+print("Dataset loaded:", df.shape)
 
 # -------------------------------------------------
-# 2️⃣ Normalize workload features ONLY for stress score
+# Convert label to numeric
 # -------------------------------------------------
 
-stress_scaler = MinMaxScaler()
-stress_features = [
-    "Work_Hours_Per_Week",
-    "Overtime_Hours",
-    "Projects_Handled",
-    "Sick_Days"
-]
+label_map = {
+    "POOR": 0,
+    "MODERATE": 1,
+    "GOOD": 2
+}
 
-df_stress_scaled = df.copy()
-df_stress_scaled[stress_features] = stress_scaler.fit_transform(
-    df_stress_scaled[stress_features]
-)
+df["wlb_label"] = df["wlb_label"].map(label_map)
 
 # -------------------------------------------------
-# 3️⃣ Compute Stress Score (balanced & stable)
+# Range to numeric mappings
 # -------------------------------------------------
 
-interaction = (
-    df_stress_scaled["Work_Hours_Per_Week"] *
-    df_stress_scaled["Overtime_Hours"]
-)
+range_maps = {
 
-stress_score = (
-    0.30 * (df_stress_scaled["Work_Hours_Per_Week"] ** 1.3) +
-    0.25 * (df_stress_scaled["Overtime_Hours"] ** 1.2) +
-    0.20 * (1 - df_stress_scaled["Employee_Satisfaction_Score"]) +
-    0.10 * interaction +
-    0.10 * df_stress_scaled["Projects_Handled"] +
-    0.05 * df_stress_scaled["Sick_Days"]
-)
+"hours_worked":{
+"<35":32,"35-40":38,"40-45":43,"45-50":48,">50":55
+},
 
-low_threshold = stress_score.quantile(0.33)
-high_threshold = stress_score.quantile(0.66)
+"overtime_hours":{
+"None":0,"1-5":3,"6-10":8,"11-15":13,">15":18
+},
 
-min_stress = stress_score.min()
-max_stress = stress_score.max()
+"projects_handled":{
+"1":1,"2-3":3,"4-5":5,"6-8":7,">8":9
+},
 
-df["Stress_Label"] = np.where(
-    stress_score < low_threshold, 0,
-    np.where(stress_score < high_threshold, 1, 2)
-)
+"meetings_count":{
+"0-5":3,"6-10":8,"11-15":13,"16-20":18,">20":25
+},
 
-# Optional check
-print("Label distribution:")
-print(df["Stress_Label"].value_counts())
+"breaks":{
+"None":0,"1":1,"2":2,"3":3,"4+":4
+},
+
+"family_time":{
+"<3":2,"3-5":4,"6-10":8,"11-15":12,">15":16
+},
+
+"break_duration":{
+"<10":5,"10-20":15,"20-30":25,"30-45":35,">45":50
+},
+
+"commute_time":{
+"No commute":0,"<30":20,"30-60":45,"1-2h":90,">2h":150
+},
+
+"sick_days":{
+"None":0,"1":1,"2":2,"3":3,"4+":4
+},
+
+"leave_days":{
+"None":0,"1":1,"2":2,"3":3,"4+":4
+},
+
+"travel":{
+"No travel":0,"1 trip":1,"2 trips":2,"3 trips":3,">3 trips":4
+},
+
+"task_delay":{
+"Never":0,"Rarely":1,"Sometimes":2,"Often":3,"Always":4
+}
+
+}
+
+# Apply mappings
+for col, mapping in range_maps.items():
+    if col in df.columns:
+        df[col] = df[col].map(mapping)
 
 # -------------------------------------------------
-# 4️⃣ Train RandomForest Model
+# Feature Selection
 # -------------------------------------------------
 
 features = [
-    "Work_Hours_Per_Week",
-    "Overtime_Hours",
-    "Employee_Satisfaction_Score",
-    "Projects_Handled",
-    "Sick_Days",
-    "Performance_Score"
+
+"hours_worked",
+"overtime_hours",
+"projects_handled",
+"meetings_count",
+
+"workload_rating",
+"deadline_pressure",
+
+"productivity_rating",
+"task_delay",
+
+"breaks",
+"break_duration",
+
+"sick_days",
+"leave_days",
+
+"exhaustion_rating",
+
+"travel",
+"travel_enjoyment",
+
+"family_time",
+"social_satisfaction",
+
+"commute_time"
 ]
 
 X = df[features]
-y = df["Stress_Label"]
+y = df["wlb_label"]
 
-model_scaler = MinMaxScaler()
-X_scaled = model_scaler.fit_transform(X)
+# -------------------------------------------------
+# Feature Scaling
+# -------------------------------------------------
+
+scaler = MinMaxScaler()
+
+X_scaled = scaler.fit_transform(X)
+
+# -------------------------------------------------
+# Train/Test Split
+# -------------------------------------------------
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X_scaled, y, test_size=0.2, random_state=42
+    X_scaled,
+    y,
+    test_size=0.2,
+    random_state=42,
+    stratify=y
 )
 
+# -------------------------------------------------
+# Train RandomForest
+# -------------------------------------------------
+
 model = RandomForestClassifier(
-    n_estimators=200,
-    random_state=42
+    n_estimators=500,
+    max_depth=15,
+    min_samples_split=5,
+    random_state=42,
+    class_weight="balanced"
 )
 
 model.fit(X_train, y_train)
 
-print("Model trained and ready")
+accuracy = model.score(X_test, y_test)
+
+print("Model trained successfully")
+print("Accuracy:", round(accuracy * 100, 2), "%")
 
 # -------------------------------------------------
-# 5️⃣ Prediction Function
+# Reverse Label Map
 # -------------------------------------------------
 
-def predict_stress(user_data: dict):
+reverse_label = {
+0:"POOR",
+1:"MODERATE",
+2:"GOOD"
+}
+
+# -------------------------------------------------
+# Prediction Function
+# -------------------------------------------------
+
+def predict_wlb(user_data:dict):
 
     sample = pd.DataFrame([user_data])
 
-    # Normalize Satisfaction & Performance (same scaler used in training)
-    sample[["Employee_Satisfaction_Score", "Performance_Score"]] = \
-        sat_perf_scaler.transform(
-            sample[["Employee_Satisfaction_Score", "Performance_Score"]]
-        )
+    for col, mapping in range_maps.items():
+        if col in sample.columns:
+            sample[col] = sample[col].map(mapping)
 
-    # ---------
-    # Compute user's stress_score (scientific method)
-    # ---------
+    sample_scaled = scaler.transform(sample)
 
-    sample_stress = sample.copy()
+    pred = model.predict(sample_scaled)[0]
 
-    # Normalize workload features using stress_scaler
-    sample_stress[stress_features] = stress_scaler.transform(
-        sample_stress[stress_features]
-    )
+    probs = model.predict_proba(sample_scaled)[0]
 
-    interaction = (
-        sample_stress["Work_Hours_Per_Week"] *
-        sample_stress["Overtime_Hours"]
-    )
+    confidence = round(np.max(probs)*100,2)
 
-    user_stress_score = (
-        0.30 * (sample_stress["Work_Hours_Per_Week"] ** 1.3) +
-        0.25 * (sample_stress["Overtime_Hours"] ** 1.2) +
-        0.20 * (1 - sample_stress["Employee_Satisfaction_Score"]) +
-        0.10 * interaction +
-        0.10 * sample_stress["Projects_Handled"] +
-        0.05 * sample_stress["Sick_Days"]
-    ).values[0]
+    label = reverse_label[pred]
 
-    # Convert to percentile (0–100 scale)
-    stress_percentage = (
-        (user_stress_score - min_stress) /
-        (max_stress - min_stress)
-    ) * 100
-
-    stress_percentage = max(0, min(100, round(stress_percentage, 2)))
-
-    # ---------
-    # Predict Label using model
-    # ---------
-
-    # Keep only training features (VERY IMPORTANT)
-    if stress_percentage < 33:
-        stress_level = "LOW"
-    elif stress_percentage < 66:
-        stress_level = "MODERATE"
-    else:
-        stress_level = "HIGH"
-
-    return stress_level, stress_percentage
+    return {
+        "wlb_label": label,
+        "confidence": confidence
+    }
