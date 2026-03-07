@@ -165,7 +165,21 @@ def weekly_checkin(
     # ------------------------------------------------
     # Prepare ML Model Input
     # ------------------------------------------------
+    break_map = {
+        "Less than 10 minutes":"<10",
+        "10 – 20 minutes":"10-20",
+        "20 – 30 minutes":"20-30",
+        "30 – 45 minutes":"30-45",
+        "More than 45 minutes":">45"
+        }
 
+    travel_map = {
+        "No travel":"No travel",
+        "1 trip":"1 trip",
+        "2 trips":"2 trips",
+        "3 trips":"3 trips",
+        "More than 3 trips":">3 trips"
+        }
     ml_input = {
         "hours_worked": data.hours_worked,
         "overtime_hours": data.overtime_hours,
@@ -179,13 +193,14 @@ def weekly_checkin(
         "task_delay": data.task_delay,
 
         "breaks": data.breaks,
-        "break_duration": data.break_duration,
+        "break_duration": break_map[data.break_duration],
+
 
         "sick_days": data.sick_days,
         "leave_days": data.leave_days,
         "exhaustion_rating": data.exhaustion_rating,
 
-        "travel": data.travel,
+        "travel": travel_map[data.travel],
         "travel_enjoyment": data.travel_enjoyment,
 
         "family_time": data.family_time,

@@ -38,7 +38,7 @@ function ProfileSetup(){
 
     alert("Profile saved");
 
-    window.location.href="/weekly-checkin";
+    window.location.href="/login";
   };
 
 

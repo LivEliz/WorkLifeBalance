@@ -5,6 +5,7 @@ function Dashboard(){
 
   const [trend,setTrend] = useState(null);
   const [result,setResult] = useState(null);
+  const [loading,setLoading] = useState(true);
 
   useEffect(()=>{
 
@@ -16,9 +17,15 @@ function Dashboard(){
 
     async function loadTrend(){
 
-      const res = await getDashboard();
-      setTrend(res.data);
+      try{
+        const res = await getDashboard();
+        setTrend(res.data);
+      }
+      catch(err){
+        console.log("Trend API failed:",err);
+      }
 
+      setLoading(false);
     }
 
     loadTrend();
@@ -26,7 +33,9 @@ function Dashboard(){
   },[]);
 
 
-  if(!trend) return <p>Loading dashboard...</p>;
+  if(loading){
+    return <p style={{padding:"30px"}}>Loading dashboard...</p>;
+  }
 
 
   return(
@@ -36,9 +45,9 @@ function Dashboard(){
       <h2>Work Life Balance Dashboard</h2>
 
 
-      {/* ML RESULT */}
+      {/* ---------------- ML RESULT ---------------- */}
 
-      {result && (
+      {result ? (
 
         <div style={{marginTop:"20px"}}>
 
@@ -48,16 +57,21 @@ function Dashboard(){
 
           <p>Status: {result.wlb_label}</p>
 
-          <p>Confidence: {result.confidence}</p>
+          <p>Confidence: {result.confidence}%</p>
 
         </div>
+
+      ) : (
+
+        <p>No weekly check-in data yet.</p>
 
       )}
 
 
-      {/* AI RECOMMENDATIONS */}
 
-      {result && result.recommendations && (
+      {/* ---------------- AI RECOMMENDATIONS ---------------- */}
+
+      {result?.recommendations?.length > 0 && (
 
         <div style={{marginTop:"30px"}}>
 
@@ -74,13 +88,14 @@ function Dashboard(){
       )}
 
 
-      {/* WEEKLY CHECKLIST */}
 
-      {result && result.weekly_checklist && (
+      {/* ---------------- WEEKLY CHECKLIST ---------------- */}
+
+      {result?.weekly_checklist?.length > 0 && (
 
         <div style={{marginTop:"30px"}}>
 
-          <h3>Suggested Checklist</h3>
+          <h3>Suggested Weekly Checklist</h3>
 
           <ul>
             {result.weekly_checklist.map((item,i)=>(
@@ -93,36 +108,49 @@ function Dashboard(){
       )}
 
 
-      {/* TREND ANALYSIS */}
+
+      {/* ---------------- TREND ANALYSIS ---------------- */}
 
       <div style={{marginTop:"40px"}}>
 
         <h3>Trend Analysis</h3>
 
-        <p>Current Score: {trend.current_wlb_score}</p>
+        {trend?.message ? (
 
-        <p>Previous Score: {trend.previous_wlb_score}</p>
+          <p>{trend.message}</p>
 
-        <p>Trend: {trend.trend}</p>
+        ) : (
 
-        <p>Change: {trend.change}</p>
+          <>
+            <p>Current Score: {trend?.current_wlb_score ?? "N/A"}</p>
+            <p>Previous Score: {trend?.previous_wlb_score ?? "N/A"}</p>
+            <p>Trend: {trend?.trend ?? "N/A"}</p>
+            <p>Change: {trend?.change ?? "N/A"}</p>
+          </>
 
-      </div>
-
-
-      {/* LAST 5 WEEKS */}
-
-      <div style={{marginTop:"30px"}}>
-
-        <h3>Last 5 Weeks Scores</h3>
-
-        <ul>
-          {trend.last_5_weeks.map((score,index)=>(
-            <li key={index}>{score}</li>
-          ))}
-        </ul>
+        )}
 
       </div>
+
+
+
+      {/* ---------------- LAST 5 WEEKS ---------------- */}
+
+      {trend?.last_5_weeks?.length > 0 && (
+
+        <div style={{marginTop:"30px"}}>
+
+          <h3>Last 5 Weeks Scores</h3>
+
+          <ul>
+            {trend.last_5_weeks.map((score,index)=>(
+              <li key={index}>{score}</li>
+            ))}
+          </ul>
+
+        </div>
+
+      )}
 
     </div>
 

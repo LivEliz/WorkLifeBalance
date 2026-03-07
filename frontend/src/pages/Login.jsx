@@ -16,7 +16,8 @@ export default function Login(){
 
     const res = await login(data);
 
-    localStorage.setItem("token",res.data.token);
+    localStorage.setItem("token",res.data.access_token);
+    localStorage.setItem("email",data.email);
 
     navigate("/weekly-checkin");
   }
