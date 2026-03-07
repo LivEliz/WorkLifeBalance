@@ -1,94 +1,182 @@
 [
-  {
-    "stress_level": "HIGH",
-    "topic": "overtime_excess",
-    "content": "Consistently working more than 10–12 hours of overtime per week significantly increases the risk of burnout, cardiovascular strain, and emotional exhaustion. Prolonged overtime reduces psychological recovery time and keeps cortisol levels elevated, preventing the nervous system from returning to baseline."
-  },
-  {
-    "stress_level": "HIGH",
-    "topic": "sleep_less_than_7_hours",
-    "content": "Sleeping less than 7 hours per night impairs emotional regulation, reduces attention control, and increases irritability. Chronic sleep restriction heightens stress reactivity and reduces resilience, making work pressures feel more overwhelming than they objectively are."
-  },
-  {
-    "stress_level": "HIGH",
-    "topic": "high_workload_multiple_projects",
-    "content": "Managing a high number of simultaneous projects increases cognitive overload and decision fatigue. When workload exceeds perceived control, it becomes one of the strongest predictors of occupational burnout and chronic stress disorders."
-  },
-  {
-    "stress_level": "HIGH",
-    "topic": "low_job_satisfaction",
-    "content": "Low job satisfaction combined with high effort creates an effort–reward imbalance. This imbalance is strongly associated with emotional exhaustion, depressive symptoms, and disengagement. When effort is not matched by recognition or meaning, stress becomes psychologically corrosive."
-  },
-  {
-    "stress_level": "HIGH",
-    "topic": "poor_detachment_from_work",
-    "content": "Inability to mentally disconnect from work during evenings or weekends prevents physiological recovery. Continuous rumination about work tasks keeps the stress response activated, increasing long-term health risks and reducing sleep quality."
-  },
-  {
-    "stress_level": "HIGH",
-    "topic": "low_family_time_high_pressure",
-    "content": "Limited time with family or supportive relationships reduces emotional buffering against stress. Social isolation during periods of high workload significantly increases vulnerability to burnout and emotional fatigue."
-  },
-
-  {
-    "stress_level": "MODERATE",
-    "topic": "sleep_between_6_and_7_hours",
-    "content": "Sleeping between 6–7 hours per night may feel manageable short term, but it gradually accumulates sleep debt. Even mild chronic sleep restriction reduces cognitive flexibility, slows reaction time, and increases sensitivity to workplace stressors."
-  },
-  {
-    "stress_level": "MODERATE",
-    "topic": "role_ambiguity_unclear_expectations",
-    "content": "Unclear job roles, shifting expectations, or lack of feedback increase psychological strain. Role ambiguity creates uncertainty, which is cognitively taxing and can sustain moderate but persistent stress levels."
-  },
-  {
-    "stress_level": "MODERATE",
-    "topic": "moderate_overtime",
-    "content": "Working 5–10 hours of overtime per week increases time pressure and reduces recovery opportunities. While not immediately harmful, sustained moderate overtime can gradually escalate into chronic stress if not managed."
-  },
-  {
-    "stress_level": "MODERATE",
-    "topic": "physical_inactivity",
-    "content": "Low levels of physical activity weaken the body's natural stress regulation mechanisms. Regular movement supports emotional regulation and improves stress tolerance by reducing physiological arousal."
-  },
-  {
-    "stress_level": "MODERATE",
-    "topic": "early_burnout_symptoms",
-    "content": "Early warning signs of burnout include persistent fatigue, reduced motivation, mild cynicism, and decreased concentration. Recognising these symptoms early provides an opportunity to intervene before stress escalates."
-  },
-  {
-    "stress_level": "MODERATE",
-    "topic": "reduced_sleep_quality",
-    "content": "Even if total sleep duration appears adequate, poor sleep quality — such as frequent awakenings or difficulty falling asleep — increases next-day stress sensitivity and emotional instability."
-  },
-
-  {
-    "stress_level": "LOW",
-    "topic": "sleep_between_7_and_9_hours",
-    "content": "Sleeping 7–9 hours per night supports optimal cognitive functioning, emotional balance, and stress resilience. Adequate sleep enhances adaptive stress responses and strengthens long-term psychological health."
-  },
-  {
-    "stress_level": "LOW",
-    "topic": "balanced_project_load",
-    "content": "Managing a realistic number of projects with clear deadlines reduces cognitive overload and supports sustained productivity without unnecessary stress accumulation."
-  },
-  {
-    "stress_level": "LOW",
-    "topic": "healthy_work_boundaries",
-    "content": "Maintaining clear boundaries between work and personal time preserves recovery capacity. Employees who consistently disconnect after work hours report significantly lower perceived stress levels."
-  },
-  {
-    "stress_level": "LOW",
-    "topic": "regular_exercise_150_minutes",
-    "content": "Engaging in at least 150 minutes of moderate physical activity per week improves mood regulation, lowers physiological stress markers, and enhances overall resilience."
-  },
-  {
-    "stress_level": "LOW",
-    "topic": "strong_social_support",
-    "content": "Strong family and social support networks buffer the effects of temporary work stress. Social connection reduces perceived stress and promotes psychological stability."
-  },
-  {
-    "stress_level": "LOW",
-    "topic": "high_autonomy_control",
-    "content": "Having control over work pace and decision-making reduces stress impact. Perceived autonomy moderates the negative effects of high workload and supports long-term well-being."
-  }
-] 
+{
+"wlb_label":"POOR",
+"topic":"developer_many_projects",
+"content":"Software developers handling more than 6 simultaneous projects per week often experience task-switching fatigue and reduced deep work capacity.",
+"recommendation":"Limit active development projects and allocate uninterrupted coding blocks."
+},
+{
+"wlb_label":"GOOD",
+"topic":"project_manager_many_projects",
+"content":"Project managers commonly coordinate multiple projects simultaneously and may manage 8–12 tasks effectively when proper delegation systems are in place.",
+"recommendation":"Use structured project tracking tools and delegate operational tasks."
+},
+{
+"wlb_label":"POOR",
+"topic":"long_commute",
+"content":"Commute times longer than 90 minutes significantly reduce recovery time and increase work-life imbalance.",
+"recommendation":"Adopt hybrid work schedules or flexible start times."
+},
+{
+"wlb_label":"MODERATE",
+"topic":"moderate_commute",
+"content":"Commutes between 30–60 minutes can gradually contribute to fatigue if combined with overtime work.",
+"recommendation":"Use commute time for relaxation such as listening to music or podcasts."
+},
+{
+"wlb_label":"GOOD",
+"topic":"no_commute_wfh",
+"content":"Employees working from home often recover better due to the absence of commuting stress.",
+"recommendation":"Maintain clear work boundaries to prevent work from extending into personal time."
+},
+{
+"wlb_label":"POOR",
+"topic":"excessive_meetings",
+"content":"Attending more than 20 meetings per week significantly disrupts focused work and increases mental exhaustion.",
+"recommendation":"Reduce unnecessary meetings and adopt asynchronous communication."
+},
+{
+"wlb_label":"MODERATE",
+"topic":"moderate_meetings",
+"content":"Employees attending 10–15 meetings per week may experience moderate cognitive load.",
+"recommendation":"Schedule meeting-free focus blocks."
+},
+{
+"wlb_label":"GOOD",
+"topic":"balanced_meetings",
+"content":"Employees attending fewer than 8 meetings per week usually maintain better focus and productivity.",
+"recommendation":"Continue prioritizing meaningful meetings."
+},
+{
+"wlb_label":"POOR",
+"topic":"no_breaks",
+"content":"Employees who take no breaks during workdays experience higher mental fatigue and productivity decline.",
+"recommendation":"Introduce at least two scheduled short breaks daily."
+},
+{
+"wlb_label":"GOOD",
+"topic":"regular_breaks",
+"content":"Taking multiple short breaks improves cognitive recovery and sustained productivity.",
+"recommendation":"Maintain regular breaks every 2–3 hours."
+},
+{
+"wlb_label":"POOR",
+"topic":"high_exhaustion",
+"content":"Employees reporting exhaustion levels above 4 frequently show early signs of burnout.",
+"recommendation":"Reduce workload temporarily and increase rest periods."
+},
+{
+"wlb_label":"MODERATE",
+"topic":"moderate_exhaustion",
+"content":"Moderate exhaustion often indicates accumulated workload stress over the week.",
+"recommendation":"Schedule restorative activities during evenings or weekends."
+},
+{
+"wlb_label":"GOOD",
+"topic":"low_exhaustion",
+"content":"Low exhaustion indicates healthy work pacing and adequate recovery.",
+"recommendation":"Continue maintaining balanced work routines."
+},
+{
+"wlb_label":"POOR",
+"topic":"unrealistic_deadlines",
+"content":"Frequent unrealistic deadlines force employees to work overtime and increase mental strain.",
+"recommendation":"Discuss deadline feasibility with managers and negotiate realistic schedules."
+},
+{
+"wlb_label":"MODERATE",
+"topic":"occasional_deadlines",
+"content":"Occasional tight deadlines may create temporary pressure but can be manageable.",
+"recommendation":"Plan buffer time between major tasks."
+},
+{
+"wlb_label":"POOR",
+"topic":"family_time_low_with_children",
+"content":"Employees with children who spend less than 3 hours weekly with family may experience emotional strain and work-life imbalance.",
+"recommendation":"Reserve protected family time during evenings or weekends."
+},
+{
+"wlb_label":"GOOD",
+"topic":"healthy_family_time",
+"content":"Employees spending more than 10 hours weekly with family often report better emotional well-being.",
+"recommendation":"Maintain consistent family engagement."
+},
+{
+"wlb_label":"POOR",
+"topic":"social_isolation",
+"content":"Low social interaction outside work can contribute to psychological stress.",
+"recommendation":"Schedule social activities with friends or colleagues."
+},
+{
+"wlb_label":"MODERATE",
+"topic":"moderate_social_interaction",
+"content":"Moderate social engagement helps maintain emotional resilience.",
+"recommendation":"Continue regular social interactions."
+},
+{
+"wlb_label":"POOR",
+"topic":"unpleasant_work_travel",
+"content":"Employees who frequently travel for work but report negative travel experiences may experience travel fatigue and burnout.",
+"recommendation":"Limit unnecessary travel or schedule recovery days after trips."
+},
+{
+"wlb_label":"GOOD",
+"topic":"enjoyable_work_travel",
+"content":"Employees who enjoy work travel often experience improved motivation and job satisfaction.",
+"recommendation":"Combine travel schedules with recovery periods."
+},
+{
+"wlb_label":"POOR",
+"topic":"fake_wfh_productivity",
+"content":"Some remote workers delay tasks during the day and complete them with late overtime, leading to extended work hours.",
+"recommendation":"Adopt structured daily work schedules and task prioritization."
+},
+{
+"wlb_label":"MODERATE",
+"topic":"mild_wfh_drift",
+"content":"Occasional delays in remote work schedules may increase overtime but are manageable.",
+"recommendation":"Set daily productivity checkpoints."
+},
+{
+"wlb_label":"POOR",
+"topic":"frequent_sick_days",
+"content":"Frequent sick days may indicate chronic stress or poor work recovery.",
+"recommendation":"Evaluate workload and improve work-rest balance."
+},
+{
+"wlb_label":"MODERATE",
+"topic":"rest_leaves",
+"content":"Taking occasional leave days for recovery helps prevent burnout.",
+"recommendation":"Encourage periodic rest days when workload peaks."
+},
+{
+"wlb_label":"POOR",
+"topic":"married_with_overtime",
+"content":"Married employees with significant overtime often experience conflict between family responsibilities and work demands.",
+"recommendation":"Limit overtime and plan family time proactively."
+},
+{
+"wlb_label":"GOOD",
+"topic":"balanced_work_family",
+"content":"Employees balancing work responsibilities with family engagement typically maintain stronger well-being.",
+"recommendation":"Continue structured work-family boundaries."
+},
+{
+"wlb_label":"POOR",
+"topic":"young_employees_overload",
+"content":"Early career employees taking excessive workloads may experience rapid burnout.",
+"recommendation":"Encourage mentorship and manageable task loads."
+},
+{
+"wlb_label":"MODERATE",
+"topic":"midcareer_balance",
+"content":"Mid-career professionals often balance productivity with growing personal responsibilities.",
+"recommendation":"Maintain structured time management."
+},
+{
+"wlb_label":"GOOD",
+"topic":"experienced_workers_balance",
+"content":"Experienced professionals often develop effective work pacing strategies.",
+"recommendation":"Continue leveraging experience to manage workload."
+}
+]
