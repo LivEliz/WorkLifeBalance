@@ -1,7 +1,5 @@
 WorkLife Balance AI – Backend
 
-update
-
 An AI-powered backend system that analyzes employee stress levels using Machine Learning, generates personalized recommendations using LLM + RAG, and tracks stress trends over time.
 
 Features:
