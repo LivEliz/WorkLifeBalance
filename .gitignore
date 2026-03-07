@@ -1,4 +1,17 @@
+.cache/
+# Python virtual environment
+venv/
+.env/
+
+# Python cache
 __pycache__/
 *.pyc
 *.pkl
-.cache/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
