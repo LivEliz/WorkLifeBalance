@@ -102,13 +102,12 @@ function Dashboard(){
         <div className="checklist-box">
 
           <h3>Suggested Weekly Checklist</h3>
-
           {result.weekly_checklist.map((item,i)=>(
-            <label key={i} className="check-item">
-              <input type="checkbox"/>
-              {item}
-            </label>
-          ))}
+  <div key={i} className="check-item">
+    <input type="checkbox" />
+    <span>{item}</span>
+  </div>
+))}
 
         </div>
 

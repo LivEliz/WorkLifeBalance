@@ -2,8 +2,19 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
+
+  /* center the login page */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+
   text-align: center;
 }
+
+/* ========================= */
+/* LOGO STYLES */
+/* ========================= */
 
 .logo {
   height: 6em;
@@ -11,9 +22,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -33,13 +46,20 @@
   }
 }
 
+/* ========================= */
+/* CARD */
+/* ========================= */
+
 .card {
   padding: 2em;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+
+  /* make card centered and wider */
+  width: 420px;
 }
 
-.read-the-docs {
-  color: #888;
-}
 /* ========================= */
 /* GENERAL CONTAINER */
 /* ========================= */
@@ -50,10 +70,12 @@
   align-items:center;
   justify-content:center;
   gap:20px;
+
+  width:100%;
 }
 
 /* ========================= */
-/* BUTTON GROUPS */
+/* BUTTON GROUP */
 /* ========================= */
 
 .button-group{
@@ -63,11 +85,45 @@
 }
 
 /* ========================= */
-/* CARD IMPROVEMENT */
+/* INPUT FIELDS */
 /* ========================= */
 
-.card{
-  background:white;
-  border-radius:12px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.1);
+input{
+  width:100%;
+  padding:12px;
+  font-size:18px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+/* ========================= */
+/* BUTTONS */
+/* ========================= */
+
+button{
+  padding:12px 20px;
+  font-size:18px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* ========================= */
+/* TEXT */
+/* ========================= */
+
+h1{
+  font-size:40px;
+}
+
+h2{
+  font-size:32px;
+}
+
+label{
+  font-size:18px;
+}
+
+.read-the-docs {
+  color: #888;
+  font-size:16px;
 }
