@@ -40,3 +40,34 @@
 .read-the-docs {
   color: #888;
 }
+/* ========================= */
+/* GENERAL CONTAINER */
+/* ========================= */
+
+.container{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+}
+
+/* ========================= */
+/* BUTTON GROUPS */
+/* ========================= */
+
+.button-group{
+  display:flex;
+  gap:15px;
+  justify-content:center;
+}
+
+/* ========================= */
+/* CARD IMPROVEMENT */
+/* ========================= */
+
+.card{
+  background:white;
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.1);
+}

@@ -26,33 +26,46 @@ export default function Signup() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Signup</h2>
 
-      <input
-        placeholder="Name"
-        onChange={(e)=>setForm({...form,name:e.target.value})}
-      />
+  <div className="page-container">
 
-      <input
-        type="number"
-        placeholder="Age"
-        onChange={(e)=>setForm({...form,age:parseInt(e.target.value)})}
-      />
+    <div className="form-card">
 
-      <input
-        placeholder="Email"
-        onChange={(e)=>setForm({...form,email:e.target.value})}
-      />
+      <h2 className="page-title">Create Your Account</h2>
 
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e)=>setForm({...form,password:e.target.value})}
-      />
+      <form onSubmit={handleSubmit} className="form-layout">
 
-      <button type="submit">Create Account</button>
-    </form>
+        <input
+          placeholder="Name"
+          onChange={(e)=>setForm({...form,name:e.target.value})}
+        />
+
+        <input
+          type="number"
+          placeholder="Age"
+          onChange={(e)=>setForm({...form,age:parseInt(e.target.value)})}
+        />
+
+        <input
+          placeholder="Email"
+          onChange={(e)=>setForm({...form,email:e.target.value})}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          onChange={(e)=>setForm({...form,password:e.target.value})}
+        />
+
+        <button type="submit">
+          Create Account
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
   );
 }
-

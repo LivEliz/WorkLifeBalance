@@ -40,24 +40,30 @@ function Dashboard(){
 
   return(
 
-    <div style={{padding:"30px"}}>
+    <div className="dashboard-container">
 
-      <h2>Work Life Balance Dashboard</h2>
+      <h1 className="dashboard-title">WorkLife Balance Dashboard</h1>
 
 
       {/* ---------------- ML RESULT ---------------- */}
 
       {result ? (
 
-        <div style={{marginTop:"20px"}}>
+        <div className="score-card">
 
-          <h3>Work Life Balance Score</h3>
+          <h3>Your Work-Life Balance Score</h3>
 
-          <h1>{result.wlb_score}</h1>
+          <div className="score-number">
+            {result.wlb_score}
+          </div>
 
-          <p>Status: {result.wlb_label}</p>
+          <p className="status">
+            Status: <strong>{result.wlb_label}</strong>
+          </p>
 
-          <p>Confidence: {result.confidence}%</p>
+          <p className="confidence">
+            Confidence: {result.confidence}%
+          </p>
 
         </div>
 
@@ -73,7 +79,7 @@ function Dashboard(){
 
       {result?.recommendations?.length > 0 && (
 
-        <div style={{marginTop:"30px"}}>
+        <div className="recommendation-box">
 
           <h3>AI Recommendations</h3>
 
@@ -93,15 +99,16 @@ function Dashboard(){
 
       {result?.weekly_checklist?.length > 0 && (
 
-        <div style={{marginTop:"30px"}}>
+        <div className="checklist-box">
 
           <h3>Suggested Weekly Checklist</h3>
 
-          <ul>
-            {result.weekly_checklist.map((item,i)=>(
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
+          {result.weekly_checklist.map((item,i)=>(
+            <label key={i} className="check-item">
+              <input type="checkbox"/>
+              {item}
+            </label>
+          ))}
 
         </div>
 
@@ -111,7 +118,7 @@ function Dashboard(){
 
       {/* ---------------- TREND ANALYSIS ---------------- */}
 
-      <div style={{marginTop:"40px"}}>
+      <div className="trend-box">
 
         <h3>Trend Analysis</h3>
 
@@ -138,7 +145,7 @@ function Dashboard(){
 
       {trend?.last_5_weeks?.length > 0 && (
 
-        <div style={{marginTop:"30px"}}>
+        <div className="weeks-box">
 
           <h3>Last 5 Weeks Scores</h3>
 

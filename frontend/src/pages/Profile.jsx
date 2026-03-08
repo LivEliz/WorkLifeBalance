@@ -8,18 +8,24 @@ export default function Profile(){
   }
 
   return(
-    <div>
 
-      <h2>Profile Settings</h2>
+  <div className="page-container">
 
-      <button onClick={updateProfile}>
+    <div className="form-card">
+
+      <h2 className="page-title">Profile Settings</h2>
+
+      <button onClick={updateProfile} className="primary-btn">
         Update Profile
       </button>
 
-      <button onClick={handleDelete}>
+      <button onClick={handleDelete} className="danger-btn">
         Delete Profile
       </button>
 
     </div>
+
+  </div>
+
   )
 }

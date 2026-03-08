@@ -44,11 +44,16 @@ function ProfileSetup(){
 
   return(
 
-  <form onSubmit={handleSubmit}>
+  <div className="page-container">
 
-    <h2>Profile Setup</h2>
+  <form onSubmit={handleSubmit} className="form-card">
 
-    <p>Email: {profile.email}</p>
+    <h2 className="page-title">Profile Setup</h2>
+
+    <p className="email-display">Email: {profile.email}</p>
+
+
+    <div className="form-section">
 
     <h3>Personal Context</h3>
 
@@ -61,7 +66,6 @@ function ProfileSetup(){
       <option value="55+">55+</option>
     </select>
 
-
     <select onChange={(e)=>setProfile({...profile,marital_status:e.target.value})}>
       <option value="">Marital Status</option>
       <option value="Single">Single</option>
@@ -71,7 +75,6 @@ function ProfileSetup(){
       <option value="Prefer not to say">Prefer not to say</option>
     </select>
 
-
     <select onChange={(e)=>setProfile({...profile,children:e.target.value})}>
       <option value="">Children</option>
       <option value="No children">No children</option>
@@ -80,6 +83,10 @@ function ProfileSetup(){
       <option value="3 or more children">3 or more children</option>
     </select>
 
+    </div>
+
+
+    <div className="form-section">
 
     <h3>Work Context</h3>
 
@@ -93,6 +100,10 @@ function ProfileSetup(){
       onChange={(e)=>setProfile({...profile,role_level:e.target.value})}
     />
 
+    </div>
+
+
+    <div className="form-section">
 
     <h3>Work Structure</h3>
 
@@ -102,7 +113,6 @@ function ProfileSetup(){
       <option value="Hybrid">Hybrid</option>
       <option value="Office Only">Office Only</option>
     </select>
-
 
     <select onChange={(e)=>setProfile({...profile,official_work_hours:e.target.value})}>
       <option value="">Work Hours</option>
@@ -114,6 +124,10 @@ function ProfileSetup(){
       <option value="Night Shift">Night Shift</option>
     </select>
 
+    </div>
+
+
+    <div className="form-section">
 
     <h3>Commute</h3>
 
@@ -126,9 +140,13 @@ function ProfileSetup(){
       <option value="More than 2 hours">More than 2 hours</option>
     </select>
 
+    </div>
+
     <button type="submit">Save Profile</button>
 
   </form>
+
+  </div>
 
   );
 }
