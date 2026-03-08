@@ -157,11 +157,15 @@ button:focus-visible {
 
 .check-item{
   display:flex;
-  align-items:center;
-  justify-content:flex-start;
+  align-items:flex-start;
   gap:12px;
   margin-top:14px;
   font-size:20px;
+  text-align:left;
+}
+
+.check-item input{
+  margin-top:6px;
 }
 
 .check-item input{
