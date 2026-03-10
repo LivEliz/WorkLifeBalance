@@ -244,8 +244,13 @@ def weekly_checkin(
     # ------------------------------------------------
     # Save Weekly Log
     # ------------------------------------------------
+    checklist_items = [
+    {"task": item, "completed": False}
+    for item in ai_output.get("weekly_checklist", [])
+    ]
 
     weekly_logs_collection.insert_one({
+        "email": data.email,
         **data.dict(),
         "wlb_score": wlb_result["wlb_score"],
         "wlb_label": wlb_result["wlb_label"],
@@ -320,6 +325,71 @@ def wlb_trend(current_user: str = Depends(get_current_user)):
         "last_5_weeks": scores[-5:]
     }
 
+# =========================
+# GET DASHBOARD DATA
+# =========================
+
+@app.get("/dashboard")
+def get_dashboard(current_user: str = Depends(get_current_user)):
+
+    latest_log = weekly_logs_collection.find_one(
+        {"email": current_user},
+        sort=[("created_at", -1)]
+    )
+
+    if not latest_log:
+        return {
+            "message": "No weekly check-in found. Please complete your first check-in."
+        }
+
+    return {
+        "log_id": str(latest_log["_id"]),
+        "wlb_score": latest_log["wlb_score"],
+        "wlb_label": latest_log["wlb_label"],
+        "confidence": latest_log["confidence"],
+
+        "recommendations": latest_log.get("recommendations", []),
+
+        # send only task text so current frontend still works
+        "weekly_checklist": [
+            item["task"] for item in latest_log.get("weekly_checklist", [])
+        ],
+
+        "last_updated": latest_log["created_at"]
+    }
+
+from bson import ObjectId
+
+# =========================
+# UPDATE CHECKLIST ITEM
+# =========================
+
+@app.put("/update-checklist")
+def update_checklist(
+    log_id: str,
+    index: int,
+    completed: bool,
+    current_user: str = Depends(get_current_user)
+):
+
+    log = weekly_logs_collection.find_one({"_id": ObjectId(log_id)})
+
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+
+    if log["email"] != current_user:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    weekly_logs_collection.update_one(
+        {"_id": ObjectId(log_id)},
+        {
+            "$set": {
+                f"weekly_checklist.{index}.completed": completed
+            }
+        }
+    )
+
+    return {"message": "Checklist updated"}
 
 # =========================
 # DELETE ACCOUNT

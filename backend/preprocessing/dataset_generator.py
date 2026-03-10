@@ -30,6 +30,38 @@ travel = ["No travel","1 trip","2 trips","3 trips",">3 trips"]
 family_time = ["<3","3-5","6-10","11-15",">15"]
 
 
+# ------------------------------
+# WEIGHTS (realistic distribution)
+# ------------------------------
+
+role_weights = [0.35,0.30,0.20,0.10,0.05]
+age_weights = [0.25,0.35,0.20,0.12,0.08]
+marital_weights = [0.45,0.45,0.07,0.03]
+children_weights = [0.45,0.25,0.20,0.10]
+
+workmode_weights = [0.30,0.50,0.20]
+official_hour_weights = [0.20,0.40,0.20,0.10,0.07,0.03]
+
+commute_weights = [0.15,0.35,0.30,0.15,0.05]
+
+hours_weights = [0.10,0.45,0.25,0.15,0.05]
+overtime_weights = [0.30,0.35,0.20,0.10,0.05]
+
+meeting_weights = [0.35,0.30,0.20,0.10,0.05]
+
+task_delay_weights = [0.25,0.30,0.25,0.15,0.05]
+
+break_weights = [0.05,0.20,0.35,0.25,0.15]
+break_duration_weights = [0.10,0.30,0.35,0.20,0.05]
+
+sick_weights = [0.50,0.20,0.15,0.10,0.05]
+leave_weights = [0.40,0.25,0.20,0.10,0.05]
+
+travel_weights = [0.50,0.25,0.15,0.07,0.03]
+
+family_weights = [0.10,0.20,0.35,0.25,0.10]
+
+
 # Numeric helpers for WLB calculation
 hours_score = {"<35":35,"35-40":38,"40-45":43,"45-50":48,">50":55}
 overtime_score = {"None":0,"1-5":3,"6-10":8,"11-15":13,">15":18}
@@ -43,33 +75,33 @@ def calculate_wlb(row):
 
     score = 100
 
-    score -= max(0, hours_score[row["hours_worked"]] - 40) * 0.8
-    score -= overtime_score[row["overtime_hours"]] * 1.5
-    score -= projects_score[row["projects_handled"]] * 0.8
-    score -= meetings_score[row["meetings_count"]] * 0.5
+    score -= max(0, hours_score[row["hours_worked"]] - 40) * 1.5
+    score -= overtime_score[row["overtime_hours"]] * 2
+    score -= projects_score[row["projects_handled"]] * 1.2
+    score -= meetings_score[row["meetings_count"]] * 1
 
-    score -= row["workload_rating"] * 2
-    score -= row["deadline_pressure"] * 2
+    score -= row["workload_rating"] * 4
+    score -= row["deadline_pressure"] * 4
 
-    score -= row["exhaustion_rating"] * 3
+    score -= row["exhaustion_rating"] * 5
 
-    score -= row["sick_days_num"] * 3
+    score -= row["sick_days_num"] * 4
 
-    score += breaks_score[row["breaks"]] * 2
+    score += breaks_score[row["breaks"]] * 1
 
-    score += family_score[row["family_time"]]
+    score += family_score[row["family_time"]]*0.7
 
-    score += row["social_satisfaction"] * 2
+    score += row["social_satisfaction"] * 1
 
-    score += row["productivity_rating"]
+    score += row["productivity_rating"]*0.5
 
-    score += row["travel_enjoyment"] * 0.5
+    score += row["travel_enjoyment"] * 0.2
 
     score = max(0, min(100, int(score)))
 
-    if score < 40:
+    if score < 45:
         label = "POOR"
-    elif score < 70:
+    elif score < 75:
         label = "MODERATE"
     else:
         label = "GOOD"
@@ -79,7 +111,7 @@ def calculate_wlb(row):
 
 def generate_employee():
 
-    role = random.choice(roles)
+    role = random.choices(roles, weights=role_weights)[0]
 
     if role == "Entry Level":
         projects = random.choice(["1","2-3"])
@@ -90,14 +122,14 @@ def generate_employee():
     else:
         projects = random.choice(["6-8",">8"])
 
-    commute_choice = random.choice(commute)
+    commute_choice = random.choices(commute, weights=commute_weights)[0]
 
     if commute_choice in ["1-2h",">2h"]:
         exhaustion = random.randint(3,5)
     else:
         exhaustion = random.randint(1,4)
 
-    overtime = random.choice(overtime_ranges)
+    overtime = random.choices(overtime_ranges, weights=overtime_weights)[0]
 
     if overtime in ["11-15",">15"]:
         workload = random.randint(4,5)
@@ -106,47 +138,47 @@ def generate_employee():
 
     productivity = max(1, 6 - exhaustion + random.randint(-1,1))
 
-    sick = random.choice(sick_days)
+    sick = random.choices(sick_days, weights=sick_weights)[0]
     sick_num = 0 if sick == "None" else int(sick.replace("+",""))
 
     row = {
 
-        "age_group": random.choice(age_groups),
-        "marital_status": random.choice(marital_status),
-        "children": random.choice(children),
+        "age_group": random.choices(age_groups,weights=age_weights)[0],
+        "marital_status": random.choices(marital_status,weights=marital_weights)[0],
+        "children": random.choices(children,weights=children_weights)[0],
 
         "role_level": role,
 
-        "official_work_hours": random.choice(official_hours),
-        "work_mode": random.choice(work_modes),
+        "official_work_hours": random.choices(official_hours,weights=official_hour_weights)[0],
+        "work_mode": random.choices(work_modes,weights=workmode_weights)[0],
         "commute_time": commute_choice,
 
-        "hours_worked": random.choice(hours_ranges),
+        "hours_worked": random.choices(hours_ranges,weights=hours_weights)[0],
         "overtime_hours": overtime,
 
         "projects_handled": projects,
-        "meetings_count": random.choice(meetings_ranges),
+        "meetings_count": random.choices(meetings_ranges,weights=meeting_weights)[0],
 
         "workload_rating": workload,
         "deadline_pressure": random.randint(1,5),
 
         "productivity_rating": productivity,
-        "task_delay": random.choice(task_delay),
+        "task_delay": random.choices(task_delay,weights=task_delay_weights)[0],
 
-        "breaks": random.choice(breaks),
-        "break_duration": random.choice(break_duration),
+        "breaks": random.choices(breaks,weights=break_weights)[0],
+        "break_duration": random.choices(break_duration,weights=break_duration_weights)[0],
 
         "sick_days": sick,
         "sick_days_num": sick_num,
 
-        "leave_days": random.choice(leave_days),
+        "leave_days": random.choices(leave_days,weights=leave_weights)[0],
 
         "exhaustion_rating": exhaustion,
 
-        "travel": random.choice(travel),
+        "travel": random.choices(travel,weights=travel_weights)[0],
         "travel_enjoyment": random.randint(1,5),
 
-        "family_time": random.choice(family_time),
+        "family_time": random.choices(family_time,weights=family_weights)[0],
         "social_satisfaction": random.randint(1,5)
 
     }
@@ -161,7 +193,7 @@ def generate_employee():
 
 dataset = []
 
-for i in range(5000):
+for i in range(100000):
     dataset.append(generate_employee())
 
 df = pd.DataFrame(dataset)
@@ -169,4 +201,3 @@ df = pd.DataFrame(dataset)
 df.to_csv("weekly_worklife_dataset.csv", index=False)
 
 print("Dataset generated:", len(df))
-

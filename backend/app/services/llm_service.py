@@ -79,10 +79,21 @@ Model Confidence: {wlb_data.get("confidence")}
 
 ------------------------------------
 
-Generate:
 
-1. Three personalized recommendations to improve work-life balance.
-2. A 5-item weekly actionable checklist the user can follow.
+Instructions
+
+{tone_instruction}
+
+Generate a user-friendly response using bullet-style advice.
+Ensure the response is tailored according to the user profile and weekly work matrix.
+
+Recommendations:
+- Provide 5 to 8 personalized bullet point recommendations.
+- The FIRST bullet must be the encouragement or compliment message.
+- Keep advice practical and easy to follow.
+
+Weekly Checklist:
+- Provide a simple 5‑item checklist the user can follow this week.
 
 Return the response strictly in JSON format like this:
 
