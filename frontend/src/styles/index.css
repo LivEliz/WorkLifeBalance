@@ -146,6 +146,8 @@ button:focus-visible {
   border-radius:10px;
   width:100%;
   max-width:850px;
+
+  text-align:left;   /* ADD THIS */
 }
 
 .checklist-box h3{
@@ -157,19 +159,25 @@ button:focus-visible {
 
 .check-item{
   display:flex;
-  align-items:flex-start;
-  gap:12px;
+  align-items:center;   /* keeps checkbox vertically aligned */
+  gap:14px;             /* spacing between checkbox and text */
   margin-top:14px;
   font-size:20px;
-  text-align:left;
+  line-height:1.4;
 }
 
+.check-item input{
+  width:18px;
+  height:18px;
+  cursor:pointer;
+  flex-shrink:0;        /* prevents checkbox from shrinking */
+}
 .check-item input{
   margin-top:6px;
 }
 
-.check-item input{
-  margin:0;
+.check-item span{
+  flex:1;
 }
 
 /* TREND */
