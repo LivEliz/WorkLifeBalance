@@ -7,6 +7,9 @@ import ProfileSetup from "./pages/ProfileSetup";
 import Signup from "./pages/Signup";
 import WeeklyCheckin from "./pages/WeeklyCheckin";
 import Welcome from "./pages/Welcome";
+import Chatbot from "./pages/Chatbot";
+
+
 
 function App() {
   return (
@@ -18,6 +21,7 @@ function App() {
         <Route path="/profile-setup" element={<ProfileSetup />} />
         <Route path="/weekly-checkin" element={<WeeklyCheckin />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>

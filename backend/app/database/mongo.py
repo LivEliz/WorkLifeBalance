@@ -22,3 +22,5 @@ recommendations_collection = db["recommendations"]
 
 # 4 ML prediction results
 wlb_results_collection = db["wlb_results"]
+
+chat_collection = db["chat_history"]

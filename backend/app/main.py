@@ -14,12 +14,16 @@ from app.models.schemas import (
 
 from app.services.stress_service import get_wlb_analysis
 from app.services.llm_service import generate_recommendations
+from app.services.chatbot_service import chatbot_reply
 
 from app.database.mongo import (
     users_collection,
     weekly_logs_collection,
     wlb_results_collection
 )
+
+from app.database.mongo import chat_collection
+from datetime import datetime
 
 app = FastAPI()
 
@@ -390,6 +394,118 @@ def update_checklist(
     )
 
     return {"message": "Checklist updated"}
+
+from pydantic import BaseModel
+
+class ChatInput(BaseModel):
+    message: str
+
+
+@app.post("/chatbot")
+def chatbot(
+    chat: ChatInput,
+    current_user: str = Depends(get_current_user)
+):
+
+    user = users_collection.find_one({"email": current_user})
+
+    # -----------------------------
+    # Save user message
+    # -----------------------------
+    chat_collection.insert_one({
+        "email": current_user,
+        "role": "user",
+        "message": chat.message,
+        "created_at": datetime.utcnow()
+    })
+
+    # -----------------------------
+    # Get last 5 exchanges (10 msgs)
+    # -----------------------------
+    history = list(
+        chat_collection
+        .find({"email": current_user})
+        .sort("created_at", -1)
+        .limit(10)
+    )
+
+    history.reverse()
+
+    conversation = ""
+
+    for msg in history:
+        role = "User" if msg["role"] == "user" else "Assistant"
+        conversation += f"{role}: {msg['message']}\n"
+
+    # -----------------------------
+    # Get latest WLB score
+    # -----------------------------
+    latest_log = weekly_logs_collection.find_one(
+        {"email": current_user},
+        sort=[("created_at",-1)]
+    )
+
+    wlb_score = latest_log["wlb_score"] if latest_log else "unknown"
+
+    # -----------------------------
+    # Prompt
+    # -----------------------------
+    prompt = f"""
+You are an AI assistant specialized in work-life balance coaching.
+
+Rules:
+- Be supportive and positive
+- Avoid giving medical advice
+- Provide short actionable suggestions
+- Encourage healthy habits
+- Provide minimal, precise responses
+- Maximum 5 lines for each response, nothing more
+- If using points, number them clearly on separate lines
+- Be interactive and approachable
+
+User profile:
+Name: {user.get("name")}
+Age: {user.get("age")}
+Work mode: {user.get("work_mode")}
+
+Latest WLB score: {wlb_score}
+
+Conversation:
+{conversation}
+
+Assistant:
+"""
+
+    reply = chatbot_reply(prompt)
+
+    # -----------------------------
+    # Save AI reply
+    # -----------------------------
+    chat_collection.insert_one({
+        "email": current_user,
+        "role": "ai",
+        "message": reply,
+        "created_at": datetime.utcnow()
+    })
+
+    # -----------------------------
+    # Keep only last 50 messages
+    # -----------------------------
+    old_messages = list(
+        chat_collection
+        .find({"email": current_user})
+        .sort("created_at", -1)
+        .skip(50)
+    )
+
+    if old_messages:
+        ids = [msg["_id"] for msg in old_messages]
+
+        chat_collection.delete_many({
+            "_id": {"$in": ids}
+        })
+
+    return {"reply": reply}
 
 # =========================
 # DELETE ACCOUNT

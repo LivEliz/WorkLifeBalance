@@ -114,7 +114,7 @@ X_scaled,y,test_size=0.2,random_state=42
 # -------------------------------------------------
 
 model=RandomForestRegressor(
-n_estimators=700,
+n_estimators=400,
 max_depth=18,
 min_samples_split=4,
 random_state=42

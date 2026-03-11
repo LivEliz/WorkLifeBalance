@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getDashboard } from "../services/api";
 
 function Dashboard(){
+
+  const navigate = useNavigate();
 
   const [trend,setTrend] = useState(null);
   const [result,setResult] = useState(null);
@@ -43,6 +46,22 @@ function Dashboard(){
     <div className="dashboard-container">
 
       <h1 className="dashboard-title">WorkLife Balance Dashboard</h1>
+
+      <div style={{textAlign:"center",marginBottom:"20px"}}>
+      <button
+        onClick={()=>navigate("/chatbot")}
+        style={{
+          background:"#0A4D8C",
+          color:"white",
+          padding:"10px 20px",
+          border:"none",
+          borderRadius:"8px",
+          cursor:"pointer"
+        }}
+      >
+        Open AI Work-Life Assistant 💬
+      </button>
+    </div>
 
 
       {/* ---------------- ML RESULT ---------------- */}
