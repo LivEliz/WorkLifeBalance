@@ -409,9 +409,6 @@ def chatbot(
 
     user = users_collection.find_one({"email": current_user})
 
-    # -----------------------------
-    # Save user message
-    # -----------------------------
     chat_collection.insert_one({
         "email": current_user,
         "role": "user",
@@ -419,9 +416,6 @@ def chatbot(
         "created_at": datetime.utcnow()
     })
 
-    # -----------------------------
-    # Get last 5 exchanges (10 msgs)
-    # -----------------------------
     history = list(
         chat_collection
         .find({"email": current_user})
@@ -434,12 +428,11 @@ def chatbot(
     conversation = ""
 
     for msg in history:
-        role = "User" if msg["role"] == "user" else "Assistant"
-        conversation += f"{role}: {msg['message']}\n"
+        if msg["role"] == "user":
+            conversation += f"User: {msg['message']}\n"
+        else:
+            conversation += f"Assistant: {msg['message']}\n"
 
-    # -----------------------------
-    # Get latest WLB score
-    # -----------------------------
     latest_log = weekly_logs_collection.find_one(
         {"email": current_user},
         sort=[("created_at",-1)]
@@ -447,9 +440,6 @@ def chatbot(
 
     wlb_score = latest_log["wlb_score"] if latest_log else "unknown"
 
-    # -----------------------------
-    # Prompt
-    # -----------------------------
     prompt = f"""
 You are an AI assistant specialized in work-life balance coaching.
 
@@ -458,52 +448,35 @@ Rules:
 - Avoid giving medical advice
 - Provide short actionable suggestions
 - Encourage healthy habits
-- Provide minimal, precise responses
-- Maximum 5 lines for each response, nothing more
-- If using points, number them clearly on separate lines
-- Be interactive and approachable
+- Provide very minimal, precise, and to the point response
+- If the response is in the form of points, make sure it is numbered properly and each point should start at a new line.
+- Be interactive and approachable.
+- Start the chat in an interactive way such as "hi","sorry to hear that.." etcetra making it interactive
 
 User profile:
 Name: {user.get("name")}
 Age: {user.get("age")}
 Work mode: {user.get("work_mode")}
 
-Latest WLB score: {wlb_score}
-
-Conversation:
+Conversation history:
 {conversation}
 
-Assistant:
+Latest WLB score: {wlb_score}
+
+User message:
+{chat.message}
+
+Provide helpful advice, encouragement and practical suggestions.
 """
 
     reply = chatbot_reply(prompt)
 
-    # -----------------------------
-    # Save AI reply
-    # -----------------------------
     chat_collection.insert_one({
         "email": current_user,
         "role": "ai",
         "message": reply,
         "created_at": datetime.utcnow()
     })
-
-    # -----------------------------
-    # Keep only last 50 messages
-    # -----------------------------
-    old_messages = list(
-        chat_collection
-        .find({"email": current_user})
-        .sort("created_at", -1)
-        .skip(50)
-    )
-
-    if old_messages:
-        ids = [msg["_id"] for msg in old_messages]
-
-        chat_collection.delete_many({
-            "_id": {"$in": ids}
-        })
 
     return {"reply": reply}
 

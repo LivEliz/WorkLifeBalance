@@ -9,8 +9,9 @@ DATA_PATH = os.path.join(PROJECT_ROOT, "data", "wlb_score_dataset.csv")
 
 df = pd.read_csv(DATA_PATH)
 
-print("Original dataset:", df.shape)
 
+df.replace(["01-01-2000","01/01/2000","2000-01-01"], np.nan, inplace=True)
+print("Original dataset:", df.shape)
 # -------------------------------------------------
 # Convert numeric columns
 # -------------------------------------------------
@@ -67,7 +68,7 @@ df["SOCIAL_NETWORK"]/df["SOCIAL_NETWORK"].max()*5
 
 df["family_time"] = pd.cut(
 df["CORE_CIRCLE"],
-bins=[0,2,4,6,8,20],
+bins=[-1,2,4,6,8,10],
 labels=["<3","3-5","6-10","11-15",">15"]
 )
 
@@ -78,25 +79,35 @@ df["DAILY_STRESS"]*0.7 +
 
 df["breaks"] = pd.cut(
 df["SLEEP_HOURS"],
-bins=[0,5,6,7,8,24],
+bins=[-1,5,6,7,8,24],
 labels=["None","1","2","3","4+"]
 )
 
 df["break_duration"] = pd.cut(
 df["FLOW"],
-bins=[0,2,4,6,8,10],
+bins=[-1,1,2,3,4,5],
 labels=["<10","10-20","20-30","30-45",">45"]
 )
 
 df["task_delay"] = pd.cut(
 df["DAILY_STRESS"],
-bins=[0,2,4,6,8,10],
+bins=[-1,1,2,3,4,5],
 labels=["Never","Rarely","Sometimes","Often","Always"]
 )
 
 df["travel_enjoyment"] = (
 df["PLACES_VISITED"]/df["PLACES_VISITED"].max()*5
 ).round().clip(1,5)
+
+categorical_cols = [
+"family_time",
+"breaks",
+"break_duration",
+"task_delay"
+]
+
+for col in categorical_cols:
+    df[col] = df[col].astype(str)
 
 # -------------------------------------------------
 # Synthetic questionnaire compatible columns
@@ -118,6 +129,7 @@ df["deadline_pressure"] = df["workload_rating"]
 # -------------------------------------------------
 # Final dataset
 # -------------------------------------------------
+df = df.fillna("Unknown")
 
 columns = [
 
