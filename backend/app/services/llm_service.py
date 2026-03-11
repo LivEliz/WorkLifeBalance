@@ -82,7 +82,7 @@ Model Confidence: {wlb_data.get("confidence")}
 
 Instructions
 
-{tone_instruction}
+
 
 Generate a user-friendly response using bullet-style advice.
 Ensure the response is tailored according to the user profile and weekly work matrix.

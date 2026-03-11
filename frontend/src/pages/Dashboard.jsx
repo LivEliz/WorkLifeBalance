@@ -61,9 +61,9 @@ function Dashboard(){
             Status: <strong>{result.wlb_label}</strong>
           </p>
 
-          <p className="confidence">
+          {/* <p className="confidence">
             Confidence: {result.confidence}%
-          </p>
+          </p> */}
 
         </div>
 
