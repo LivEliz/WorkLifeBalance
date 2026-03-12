@@ -26,7 +26,7 @@ export default function Login(){
       localStorage.setItem("token",res.data.access_token);
       localStorage.setItem("email",data.email);
 
-      navigate("/weekly-checkin");
+      navigate("/home");
 
     }
     catch(err){

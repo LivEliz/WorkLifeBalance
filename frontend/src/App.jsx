@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import ProfileSetup from "./pages/ProfileSetup";
 import Signup from "./pages/Signup";
+import Home from "./pages/home";
+<Route path="/home" element={<Home />} />
 import WeeklyCheckin from "./pages/WeeklyCheckin";
 import Welcome from "./pages/Welcome";
 import Chatbot from "./pages/Chatbot";
