@@ -260,7 +260,7 @@ def weekly_checkin(
         "wlb_label": wlb_result["wlb_label"],
         "confidence": wlb_result["confidence"],
         "recommendations": ai_output.get("recommendations"),
-        "weekly_checklist": ai_output.get("weekly_checklist"),
+        "weekly_checklist": checklist_items,   
         "created_at": datetime.utcnow()
     })
 
@@ -346,6 +346,28 @@ def get_dashboard(current_user: str = Depends(get_current_user)):
             "message": "No weekly check-in found. Please complete your first check-in."
         }
 
+    # get last 5 logs for trend
+    last_logs = list(
+        weekly_logs_collection.find(
+            {"email": current_user}
+        ).sort("created_at", -1).limit(5)
+    )
+
+    scores = [log["wlb_score"] for log in reversed(last_logs)]
+
+    current_score = scores[-1]
+    previous_score = scores[-2] if len(scores) > 1 else None
+
+    trend = "Stable"
+    change = 0
+
+    if previous_score:
+        change = current_score - previous_score
+        if change > 0:
+            trend = "Improving"
+        elif change < 0:
+            trend = "Declining"
+
     return {
         "log_id": str(latest_log["_id"]),
         "wlb_score": latest_log["wlb_score"],
@@ -354,10 +376,15 @@ def get_dashboard(current_user: str = Depends(get_current_user)):
 
         "recommendations": latest_log.get("recommendations", []),
 
-        # send only task text so current frontend still works
         "weekly_checklist": [
             item["task"] for item in latest_log.get("weekly_checklist", [])
         ],
+
+        "current_wlb_score": current_score,
+        "previous_wlb_score": previous_score,
+        "trend": trend,
+        "change": change,
+        "last_5_weeks": scores,
 
         "last_updated": latest_log["created_at"]
     }

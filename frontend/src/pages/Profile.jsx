@@ -1,4 +1,5 @@
 import { deleteProfile, updateProfile } from "../services/api";
+import bg from "../assets/bg_wlb.png"; 
 
 export default function Profile(){
 

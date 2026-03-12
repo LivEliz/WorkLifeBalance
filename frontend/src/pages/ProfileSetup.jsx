@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { saveProfile } from "../services/api";
+import bg from "../assets/bg_wlb.png"; 
 
 function ProfileSetup(){
 

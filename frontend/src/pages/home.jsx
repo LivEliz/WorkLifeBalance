@@ -1,15 +1,35 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getDashboard } from "../services/api";
+import bg from "../assets/bg_wlb.png"; 
 
 export default function Home(){
 
   const navigate = useNavigate();
+  const [hasData,setHasData] = useState(false);
 
-  const saved = localStorage.getItem("latest_result");
-  const result = saved ? JSON.parse(saved) : null;
+  useEffect(()=>{
+
+    async function checkUserData(){
+      try{
+        const res = await getDashboard();
+
+        if(res.data && !res.data.message){
+          setHasData(true);
+        }
+      }
+      catch(err){
+        console.log("Dashboard check failed");
+      }
+    }
+
+    checkUserData();
+
+  },[]);
 
   const goToDashboard = () => {
 
-    if(!result){
+    if(!hasData){
       alert("Please complete the questionnaire first.");
       return;
     }
@@ -29,6 +49,7 @@ export default function Home(){
     justifyContent:"center",
     alignItems:"center",
     background:"linear-gradient(135deg,#EAF4FF,#D6E8FF)",
+    backgroundImage: `url(${bg})`,
     fontFamily:"Segoe UI"
   }}>
 
@@ -49,8 +70,6 @@ export default function Home(){
   Choose where you want to go
   </p>
 
-  {/* QUESTIONNAIRE */}
-
   <button
   onClick={goToQuestionnaire}
   style={{
@@ -67,8 +86,6 @@ export default function Home(){
   >
   Go to Questionnaire
   </button>
-
-  {/* DASHBOARD */}
 
   <button
   onClick={goToDashboard}

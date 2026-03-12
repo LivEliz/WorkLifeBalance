@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signup } from "../services/api";
+import bg from "../assets/bg_wlb.png"; 
 
 export default function Signup() {
 
@@ -20,6 +21,7 @@ export default function Signup() {
 
     localStorage.setItem("token", res.data.access_token);
     localStorage.setItem("email", form.email);
+    localStorage.removeItem("latest_result");
 
     navigate("/profile-setup");
   };
@@ -32,6 +34,7 @@ display:"flex",
 justifyContent:"center",
 alignItems:"center",
 background:"linear-gradient(135deg,#EAF4FF,#D6E8FF)",
+backgroundImage: `url(${bg})`,
 fontFamily:"Segoe UI"
 }}>
 

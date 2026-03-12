@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDashboard } from "../services/api";
 
+
 import {
   LineChart,
   Line,
@@ -33,6 +34,10 @@ function Dashboard(){
       try{
         const res = await getDashboard();
         setTrend(res.data);
+        if(res.data?.recommendations){
+        setResult(res.data);
+        localStorage.setItem("latest_result", JSON.stringify(res.data));
+        }
       }
       catch(err){
         console.log("Trend API failed:",err);

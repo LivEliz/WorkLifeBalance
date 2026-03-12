@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/api";
 import { FaUserAlt, FaLock } from "react-icons/fa";
+import bg from "../assets/bg_wlb.png"; 
 
 export default function Login(){
 
@@ -49,6 +50,7 @@ display:"flex",
 justifyContent:"center",
 alignItems:"center",
 background:"linear-gradient(135deg,#EAF4FF,#D6E8FF)",
+backgroundImage: `url(${bg})`,
 fontFamily:"Segoe UI"
 }}>
 

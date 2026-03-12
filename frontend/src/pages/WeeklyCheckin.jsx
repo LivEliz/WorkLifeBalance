@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { submitWeekly } from "../services/api";
 import SlideCard from "../components/Slidecard";
+import bg from "../assets/bg_wlb.png"; 
 
 function WeeklyCheckin(){
 
@@ -74,6 +75,7 @@ setLoading(false);
 };
 
 return(
+    
 
 <form onSubmit={handleSubmit} style={{maxWidth:"700px",margin:"auto"}}>
 
