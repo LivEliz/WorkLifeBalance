@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import bg from "../assets/background.jpg";   // place your image here
+import bg from "../assets/bg_wlb.png";   // place your image here
 
 export default function Welcome() {
   return (
