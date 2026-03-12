@@ -12,133 +12,128 @@ export default function Login(){
     password:""
   });
 
+  const [error,setError] = useState("");
+
   const handleSubmit = async(e)=>{
     e.preventDefault();
 
-    const res = await login(data);
+    setError("");
 
-    localStorage.setItem("token",res.data.access_token);
-    localStorage.setItem("email",data.email);
+    try{
 
-    navigate("/weekly-checkin");
+      const res = await login(data);
+
+      localStorage.setItem("token",res.data.access_token);
+      localStorage.setItem("email",data.email);
+
+      navigate("/weekly-checkin");
+
+    }
+    catch(err){
+
+      if(err.response?.status === 401){
+        setError("Incorrect email or password.");
+      }
+      else{
+        setError("Login failed. Please try again.");
+      }
+
+    }
   }
 
   return (
 
 <div style={{
-display:"flex",
 height:"100vh",
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
+background:"linear-gradient(135deg,#EAF4FF,#D6E8FF)",
 fontFamily:"Segoe UI"
-}}>
-
-
-{/* LEFT SIDE DESIGN PANEL */}
-
-<div style={{
-flex:1,
-background:"linear-gradient(135deg,#0A4D8C,#2F80ED)",
-color:"white",
-display:"flex",
-flexDirection:"column",
-justifyContent:"center",
-alignItems:"center",
-padding:"40px"
-}}>
-
-<h1 style={{
-fontSize:"42px",
-marginBottom:"10px",
-textAlign:"center"
-}}>
-WorkLife Balance
-</h1>
-
-<p style={{
-fontSize:"18px",
-textAlign:"center",
-maxWidth:"350px"
-}}>
-AI powered system to monitor employee well-being and maintain a healthy work-life balance.
-</p>
-
-<div style={{
-marginTop:"40px",
-fontSize:"80px"
-}}>
-💼
-</div>
-
-</div>
-
-
-{/* RIGHT SIDE LOGIN FORM */}
-
-<div style={{
-flex:1,
-display:"flex",
-justifyContent:"center",
-alignItems:"center",
-background:"#EAF4FF"
 }}>
 
 <form
 onSubmit={handleSubmit}
 style={{
 background:"white",
-padding:"40px",
-borderRadius:"12px",
-width:"350px",
-boxShadow:"0 10px 25px rgba(0,0,0,0.15)"
+padding:"45px",
+borderRadius:"16px",
+width:"380px",
+boxShadow:"0 12px 35px rgba(0,0,0,0.15)",
+textAlign:"center"
 }}
 >
 
-<h2 style={{
-textAlign:"center",
-marginBottom:"30px",
-color:"#0A4D8C"
+<h1 style={{
+color:"#0A4D8C",
+marginBottom:"5px"
 }}>
-Login
-</h2>
+LifeBalance AI
+</h1>
 
+<p style={{
+fontSize:"14px",
+color:"#666",
+marginBottom:"25px"
+}}>
+Login to continue your work‑life balance journey
+</p>
+
+{/* ERROR MESSAGE */}
+
+{error && (
+<div style={{
+background:"#ffe6e6",
+color:"#cc0000",
+padding:"10px",
+borderRadius:"6px",
+marginBottom:"15px",
+fontSize:"14px"
+}}>
+{error}
+</div>
+)}
 
 {/* EMAIL */}
 
 <div style={{
 display:"flex",
 alignItems:"center",
-border:"1px solid #ccc",
+border:"1px solid #ddd",
 borderRadius:"8px",
-padding:"8px",
-marginBottom:"20px"
+padding:"10px",
+marginBottom:"20px",
+background:"#fafafa"
 }}>
 
-<FaUserAlt style={{marginRight:"8px",color:"#0A4D8C"}}/>
+<FaUserAlt style={{marginRight:"10px",color:"#0A4D8C"}}/>
 
 <input
 placeholder="Email"
 style={{
 border:"none",
 outline:"none",
-width:"100%"
+width:"100%",
+background:"transparent"
 }}
 onChange={(e)=>setData({...data,email:e.target.value})}
 />
 
 </div>
 
-
 {/* PASSWORD */}
 
 <div style={{
 display:"flex",
 alignItems:"center",
-border:"1px solid #ccc",
+border:"1px solid #ddd",
 borderRadius:"8px",
-padding:"8px",
-marginBottom:"25px"
+padding:"10px",
+marginBottom:"25px",
+background:"#fafafa"
 }}>
 
-<FaLock style={{marginRight:"8px",color:"#0A4D8C"}}/>
+<FaLock style={{marginRight:"10px",color:"#0A4D8C"}}/>
 
 <input
 type="password"
@@ -146,13 +141,13 @@ placeholder="Password"
 style={{
 border:"none",
 outline:"none",
-width:"100%"
+width:"100%",
+background:"transparent"
 }}
 onChange={(e)=>setData({...data,password:e.target.value})}
 />
 
 </div>
-
 
 {/* BUTTON */}
 
@@ -161,20 +156,32 @@ type="submit"
 style={{
 width:"100%",
 padding:"12px",
-background:"#2F80ED",
+background:"linear-gradient(135deg,#0A4D8C,#2F80ED)",
 border:"none",
 borderRadius:"8px",
 color:"white",
 fontSize:"16px",
+fontWeight:"600",
 cursor:"pointer"
 }}
 >
 Login
 </button>
 
-</form>
+<p style={{
+marginTop:"18px",
+fontSize:"13px",
+color:"#666"
+}}>
+Don't have an account? <span
+style={{color:"#2F80ED",cursor:"pointer"}}
+onClick={()=>navigate("/signup")}
+>
+Sign up
+</span>
+</p>
 
-</div>
+</form>
 
 </div>
 

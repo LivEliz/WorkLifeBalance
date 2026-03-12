@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDashboard } from "../services/api";
 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid
+} from "recharts";
+
 function Dashboard(){
 
   const navigate = useNavigate();
@@ -35,11 +45,9 @@ function Dashboard(){
 
   },[]);
 
-
   if(loading){
     return <p style={{padding:"30px"}}>Loading dashboard...</p>;
   }
-
 
   return(
 
@@ -63,7 +71,6 @@ function Dashboard(){
       </button>
     </div>
 
-
       {/* ---------------- ML RESULT ---------------- */}
 
       {result ? (
@@ -80,10 +87,6 @@ function Dashboard(){
             Status: <strong>{result.wlb_label}</strong>
           </p>
 
-          {/* <p className="confidence">
-            Confidence: {result.confidence}%
-          </p> */}
-
         </div>
 
       ) : (
@@ -91,8 +94,6 @@ function Dashboard(){
         <p>No weekly check-in data yet.</p>
 
       )}
-
-
 
       {/* ---------------- AI RECOMMENDATIONS ---------------- */}
 
@@ -112,8 +113,6 @@ function Dashboard(){
 
       )}
 
-
-
       {/* ---------------- WEEKLY CHECKLIST ---------------- */}
 
       {result?.weekly_checklist?.length > 0 && (
@@ -121,20 +120,19 @@ function Dashboard(){
         <div className="checklist-box">
 
           <h3>Suggested Weekly Checklist</h3>
+
           {result.weekly_checklist.map((item,i)=>(
-  <div key={i} className="check-item">
-    <input type="checkbox" />
-    <span>{item}</span>
-  </div>
-))}
+            <div key={i} className="check-item">
+              <input type="checkbox" />
+              <span>{item}</span>
+            </div>
+          ))}
 
         </div>
 
       )}
 
-
-
-      {/* ---------------- TREND ANALYSIS ---------------- */}
+      {/* ---------------- TREND ANALYSIS (GRAPH) ---------------- */}
 
       <div className="trend-box">
 
@@ -147,17 +145,51 @@ function Dashboard(){
         ) : (
 
           <>
-            <p>Current Score: {trend?.current_wlb_score ?? "N/A"}</p>
-            <p>Previous Score: {trend?.previous_wlb_score ?? "N/A"}</p>
-            <p>Trend: {trend?.trend ?? "N/A"}</p>
-            <p>Change: {trend?.change ?? "N/A"}</p>
+
+            <div style={{width:"100%",height:"250px"}}>
+
+              <ResponsiveContainer>
+
+                <LineChart
+                  data={trend?.last_5_weeks?.map((score,index)=>({
+                    week:`Week ${index+1}`,
+                    score:score
+                  }))}
+                >
+
+                  <CartesianGrid strokeDasharray="3 3" />
+
+                  <XAxis dataKey="week" />
+
+                  <YAxis />
+
+                  <Tooltip />
+
+                  <Line
+                    type="monotone"
+                    dataKey="score"
+                    stroke="#0A4D8C"
+                    strokeWidth={3}
+                  />
+
+                </LineChart>
+
+              </ResponsiveContainer>
+
+            </div>
+
+            <div style={{marginTop:"15px"}}>
+              <p>Current Score: {trend?.current_wlb_score ?? "N/A"}</p>
+              <p>Previous Score: {trend?.previous_wlb_score ?? "N/A"}</p>
+              <p>Trend: {trend?.trend ?? "N/A"}</p>
+              <p>Change: {trend?.change ?? "N/A"}</p>
+            </div>
+
           </>
 
         )}
 
       </div>
-
-
 
       {/* ---------------- LAST 5 WEEKS ---------------- */}
 

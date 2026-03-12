@@ -9,21 +9,26 @@ DATA_PATH = os.path.join(PROJECT_ROOT, "data", "wlb_score_dataset.csv")
 
 df = pd.read_csv(DATA_PATH)
 
-
-df.replace(["01-01-2000","01/01/2000","2000-01-01"], np.nan, inplace=True)
 print("Original dataset:", df.shape)
+
 # -------------------------------------------------
-# Convert numeric columns
+# Clean dataset
 # -------------------------------------------------
+
+df.replace(["01-01-2000", "01/01/2000"], np.nan, inplace=True)
 
 numeric_cols = [
 "DAILY_STRESS",
 "TODO_COMPLETED",
 "FLOW",
 "SLEEP_HOURS",
-"SOCIAL_NETWORK",
-"CORE_CIRCLE",
 "PLACES_VISITED",
+"CORE_CIRCLE",
+"ACHIEVEMENT",
+"SUPPORTING_OTHERS",
+"TIME_FOR_PASSION",
+"DAILY_SHOUTING",
+"LOST_VACATION",
 "WORK_LIFE_BALANCE_SCORE"
 ]
 
@@ -33,14 +38,10 @@ for col in numeric_cols:
 df = df.dropna(subset=numeric_cols)
 
 # -------------------------------------------------
-# Keep ORIGINAL Kaggle Score
+# Keep Kaggle Score
 # -------------------------------------------------
 
 df["wlb_score"] = df["WORK_LIFE_BALANCE_SCORE"]
-
-# -------------------------------------------------
-# Create label from score
-# -------------------------------------------------
 
 def label(score):
     if score < 550:
@@ -53,83 +54,143 @@ def label(score):
 df["wlb_label"] = df["wlb_score"].apply(label)
 
 # -------------------------------------------------
-# Feature engineering
+# Feature Engineering
 # -------------------------------------------------
+
+# HOURS WORKED (proxy using TODO_COMPLETED)
+
+df["hours_worked"] = pd.cut(
+    df["TODO_COMPLETED"],
+    bins=[-1,2,4,6,8,10],
+    labels=["<35","35-40","40-45","45-50",">50"]
+)
+
+# OVERTIME HOURS (proxy using DAILY_STRESS)
+
+df["overtime_hours"] = pd.cut(
+    df["DAILY_STRESS"],
+    bins=[-1,1,3,5,7,10],
+    labels=["None","1-5","6-10","11-15",">15"]
+)
+
+# PROJECTS HANDLED (TODO_COMPLETED)
+
+df["projects_handled"] = pd.cut(
+    df["TODO_COMPLETED"],
+    bins=[-1,1,3,5,8,10],
+    labels=["1","2-3","4-5","6-8",">8"]
+)
+
+# MEETINGS COUNT (FLOW proxy)
+
+df["meetings_count"] = pd.cut(
+    df["FLOW"],
+    bins=[-1,2,4,6,8,10],
+    labels=["0-5","6-10","11-15","16-20",">20"]
+)
+
+# WORKLOAD RATING
 
 df["workload_rating"] = df["DAILY_STRESS"].clip(1,5)
 
+# DEADLINE PRESSURE (mapped from DAILY_SHOUTING)
+
+df["deadline_pressure"] = (
+    df["DAILY_SHOUTING"] / 10 * 5
+).round().clip(1,5)
+
+# PRODUCTIVITY RATING (mapped from ACHIEVEMENT)
+
 df["productivity_rating"] = (
-df["TODO_COMPLETED"]/df["TODO_COMPLETED"].max()*5
+    df["ACHIEVEMENT"] / 10 * 5
 ).round().clip(1,5)
 
-df["social_satisfaction"] = (
-df["SOCIAL_NETWORK"]/df["SOCIAL_NETWORK"].max()*5
-).round().clip(1,5)
-
-df["family_time"] = pd.cut(
-df["CORE_CIRCLE"],
-bins=[-1,2,4,6,8,10],
-labels=["<3","3-5","6-10","11-15",">15"]
-)
-
-df["exhaustion_rating"] = (
-df["DAILY_STRESS"]*0.7 +
-(10-df["SLEEP_HOURS"])*0.3
-).round().clip(1,5)
-
-df["breaks"] = pd.cut(
-df["SLEEP_HOURS"],
-bins=[-1,5,6,7,8,24],
-labels=["None","1","2","3","4+"]
-)
-
-df["break_duration"] = pd.cut(
-df["FLOW"],
-bins=[-1,1,2,3,4,5],
-labels=["<10","10-20","20-30","30-45",">45"]
-)
+# TASK DELAY (from DAILY_STRESS)
 
 df["task_delay"] = pd.cut(
-df["DAILY_STRESS"],
-bins=[-1,1,2,3,4,5],
-labels=["Never","Rarely","Sometimes","Often","Always"]
+    df["DAILY_STRESS"],
+    bins=[-1,1,3,5,7,10],
+    labels=["Never","Rarely","Sometimes","Often","Always"]
 )
 
-df["travel_enjoyment"] = (
-df["PLACES_VISITED"]/df["PLACES_VISITED"].max()*5
+# BREAKS (from SLEEP_HOURS)
+
+df["breaks"] = pd.cut(
+    df["SLEEP_HOURS"],
+    bins=[-1,4,5,6,7,24],
+    labels=["None","1","2","3","4+"]
+)
+
+# BREAK DURATION (from FLOW)
+
+df["break_duration"] = pd.cut(
+    df["FLOW"],
+    bins=[-1,2,4,6,8,10],
+    labels=["<10","10-20","20-30","30-45",">45"]
+)
+
+# SICK DAYS (from LOST_VACATION)
+
+df["sick_days"] = pd.cut(
+    df["LOST_VACATION"],
+    bins=[-1,0,2,4,6,10],
+    labels=["None","1","2","3","4+"]
+)
+
+# LEAVE DAYS (from LOST_VACATION)
+
+df["leave_days"] = pd.cut(
+    df["LOST_VACATION"],
+    bins=[-1,1,3,5,7,10],
+    labels=["None","1","2","3","4+"]
+)
+
+# EXHAUSTION RATING (from DAILY_STRESS)
+
+df["exhaustion_rating"] = (
+    df["DAILY_STRESS"] / 10 * 5
 ).round().clip(1,5)
 
-categorical_cols = [
-"family_time",
-"breaks",
-"break_duration",
-"task_delay"
-]
+# TRAVEL (from PLACES_VISITED)
 
-for col in categorical_cols:
-    df[col] = df[col].astype(str)
+df["travel"] = pd.cut(
+    df["PLACES_VISITED"],
+    bins=[-1,0,2,4,6,10],
+    labels=["No travel","1 trip","2 trips","3 trips",">3 trips"]
+)
 
-# -------------------------------------------------
-# Synthetic questionnaire compatible columns
-# -------------------------------------------------
+# TRAVEL ENJOYMENT (from TIME_FOR_PASSION)
+
+df["travel_enjoyment"] = (
+    df["TIME_FOR_PASSION"] / 10 * 5
+).round().clip(1,5)
+
+# FAMILY TIME (from CORE_CIRCLE)
+
+df["family_time"] = pd.cut(
+    df["CORE_CIRCLE"],
+    bins=[-1,2,4,6,8,20],
+    labels=["<3","3-5","6-10","11-15",">15"]
+)
+
+# SOCIAL SATISFACTION (from SUPPORTING_OTHERS)
+
+df["social_satisfaction"] = (
+    df["SUPPORTING_OTHERS"] / 10 * 5
+).round().clip(1,5)
+
+# COMMUTE TIME (synthetic because dataset lacks it)
 
 np.random.seed(42)
 
-df["hours_worked"] = np.random.choice(["<35","35-40","40-45","45-50",">50"],len(df))
-df["overtime_hours"] = np.random.choice(["None","1-5","6-10","11-15",">15"],len(df))
-df["projects_handled"] = np.random.choice(["1","2-3","4-5","6-8",">8"],len(df))
-df["meetings_count"] = np.random.choice(["0-5","6-10","11-15","16-20",">20"],len(df))
-df["sick_days"] = np.random.choice(["None","1","2","3","4+"],len(df))
-df["leave_days"] = np.random.choice(["None","1","2","3","4+"],len(df))
-df["travel"] = np.random.choice(["No travel","1 trip","2 trips","3 trips",">3 trips"],len(df))
-df["commute_time"] = np.random.choice(["No commute","<30","30-60","1-2h",">2h"],len(df))
-
-df["deadline_pressure"] = df["workload_rating"]
+df["commute_time"] = np.random.choice(
+    ["No commute","<30","30-60","1-2h",">2h"],
+    len(df)
+)
 
 # -------------------------------------------------
 # Final dataset
 # -------------------------------------------------
-df = df.fillna("Unknown")
 
 columns = [
 
