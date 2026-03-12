@@ -4,18 +4,21 @@ export default function Home(){
 
   const navigate = useNavigate();
 
-  const result = localStorage.getItem("latest_result");
+  const saved = localStorage.getItem("latest_result");
+  const result = saved ? JSON.parse(saved) : null;
 
-  const openDashboard = () => {
+  const goToDashboard = () => {
 
     if(!result){
-      alert("Please complete the weekly questionnaire first.");
-      navigate("/weekly-checkin");
-    }
-    else{
-      navigate("/dashboard");
+      alert("Please complete the questionnaire first.");
+      return;
     }
 
+    navigate("/dashboard");
+  };
+
+  const goToQuestionnaire = () => {
+    navigate("/weekly-checkin");
   };
 
   return(
@@ -43,11 +46,13 @@ export default function Home(){
   </h1>
 
   <p style={{marginBottom:"30px",color:"#555"}}>
-  Choose what you would like to do
+  Choose where you want to go
   </p>
 
+  {/* QUESTIONNAIRE */}
+
   <button
-  onClick={()=>navigate("/weekly-checkin")}
+  onClick={goToQuestionnaire}
   style={{
     width:"100%",
     padding:"12px",
@@ -60,11 +65,13 @@ export default function Home(){
     fontSize:"16px"
   }}
   >
-  Start Weekly Questionnaire
+  Go to Questionnaire
   </button>
 
+  {/* DASHBOARD */}
+
   <button
-  onClick={openDashboard}
+  onClick={goToDashboard}
   style={{
     width:"100%",
     padding:"12px",
@@ -76,7 +83,7 @@ export default function Home(){
     fontSize:"16px"
   }}
   >
-  View Dashboard
+  Go to Dashboard
   </button>
 
   </div>
