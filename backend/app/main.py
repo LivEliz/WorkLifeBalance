@@ -14,7 +14,7 @@ from app.models.schemas import (
 
 from app.services.stress_service import get_wlb_analysis
 from app.services.llm_service import generate_recommendations
-from app.services.chatbot_service import chatbot_reply
+from app.services.chatbot_service import chatbot_stream
 
 from app.database.mongo import (
     users_collection,
@@ -428,6 +428,10 @@ class ChatInput(BaseModel):
     message: str
 
 
+from fastapi.responses import StreamingResponse
+from app.services.chatbot_service import chatbot_stream
+import json
+
 @app.post("/chatbot")
 def chatbot(
     chat: ChatInput,
@@ -468,17 +472,14 @@ def chatbot(
     wlb_score = latest_log["wlb_score"] if latest_log else "unknown"
 
     prompt = f"""
-You are an AI assistant specialized in work-life balance coaching.
+You are a friendly AI coach helping users improve work‑life balance.
 
-Rules:
-- Be supportive and positive
-- Avoid giving medical advice
-- Provide short actionable suggestions
-- Encourage healthy habits
-- Provide very minimal, precise, and to the point response
-- If the response is in the form of points, make sure it is numbered properly and each point should start at a new line.
-- Be interactive and approachable.
-- Start the chat in an interactive way such as "hi","sorry to hear that.." etcetra making it interactive
+IMPORTANT RULES:
+- Only answer the user's latest message.
+- Do NOT repeat the prompt.
+- Do NOT repeat conversation history.
+- Do NOT include labels like "User:", "Assistant:", "Latest WLB score:", or "User profile:".
+- Give short supportive advice (3‑6 sentences or numbered tips).
 
 User profile:
 Name: {user.get("name")}
@@ -493,19 +494,39 @@ Latest WLB score: {wlb_score}
 User message:
 {chat.message}
 
-Provide helpful advice, encouragement and practical suggestions.
+Assistant response:
 """
 
-    reply = chatbot_reply(prompt)
+    def generate():
 
-    chat_collection.insert_one({
-        "email": current_user,
-        "role": "ai",
-        "message": reply,
-        "created_at": datetime.utcnow()
-    })
+        full_reply = ""
+        full_reply = full_reply.strip()
 
-    return {"reply": reply}
+        for chunk in chatbot_stream(prompt):
+
+            # remove prompt leakage
+            bad_phrases = [
+                "User:",
+                "Assistant:",
+                "Latest WLB",
+                "User profile",
+                "Conversation history"
+            ]
+
+            if any(bad in chunk for bad in bad_phrases):
+                continue
+
+            full_reply += chunk
+            yield chunk
+
+        chat_collection.insert_one({
+            "email": current_user,
+            "role": "ai",
+            "message": full_reply,
+            "created_at": datetime.utcnow()
+        })
+
+    return StreamingResponse(generate(), media_type="text/plain")
 
 # =========================
 # DELETE ACCOUNT

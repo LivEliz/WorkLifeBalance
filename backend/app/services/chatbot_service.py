@@ -1,17 +1,25 @@
+# backend/app/services/chatbot_service.py
+
 import requests
+import json
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
-def chatbot_reply(prompt):
+def chatbot_stream(prompt):
 
     payload = {
         "model": "phi3:mini",
         "prompt": prompt,
-        "stream": False
+        "stream": True
     }
 
-    response = requests.post(OLLAMA_URL, json=payload)
+    response = requests.post(
+        OLLAMA_URL,
+        json=payload,
+        stream=True
+    )
 
-    result = response.json()
-
-    return result.get("response", "")
+    for line in response.iter_lines():
+        if line:
+            data = json.loads(line.decode("utf-8"))
+            yield data.get("response", "")

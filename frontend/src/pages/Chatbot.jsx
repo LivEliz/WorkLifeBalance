@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 
 function Chatbot(){
 
@@ -19,25 +18,44 @@ setTyping(true);
 
 try{
 
-const res = await axios.post(
+const response = await fetch(
 "http://localhost:8000/chatbot",
-{message: userMessage.text},
 {
+method:"POST",
 headers:{
-Authorization:`Bearer ${localStorage.getItem("token")}`
-}
+"Content-Type":"application/json",
+"Authorization":`Bearer ${localStorage.getItem("token")}`
+},
+body:JSON.stringify({message:userMessage.text})
 }
 );
 
-const aiMessage = {
-role:"ai",
-text:res.data.reply
-};
+const reader = response.body.getReader();
+const decoder = new TextDecoder("utf-8");
 
-setMessages(prev => [...prev, aiMessage]);
+let aiText = "";
+
+setMessages(prev => [...prev,{role:"ai",text:""}]);
+
+while(true){
+
+const {done,value} = await reader.read();
+
+if(done) break;
+
+const chunk = decoder.decode(value);
+
+aiText += chunk;
+
+setMessages(prev => {
+const updated=[...prev];
+updated[updated.length-1].text = aiText;
+return updated;
+});
 
 }
-catch(err){
+
+}catch(err){
 
 setMessages(prev => [...prev,{
 role:"ai",
@@ -51,6 +69,8 @@ setTyping(false);
 };
 
 return(
+
+
 
 <div style={{maxWidth:"700px",margin:"auto"}}>
 
