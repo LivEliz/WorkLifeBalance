@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { getDashboard } from "../services/api";
-
+import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
   LineChart,
@@ -14,8 +13,6 @@ import {
 } from "recharts";
 
 function Dashboard(){
-
-  const navigate = useNavigate();
 
   const [trend,setTrend] = useState(null);
   const [result,setResult] = useState(null);
@@ -34,10 +31,12 @@ function Dashboard(){
       try{
         const res = await getDashboard();
         setTrend(res.data);
+
         if(res.data?.recommendations){
-        setResult(res.data);
-        localStorage.setItem("latest_result", JSON.stringify(res.data));
+          setResult(res.data);
+          localStorage.setItem("latest_result", JSON.stringify(res.data));
         }
+
       }
       catch(err){
         console.log("Trend API failed:",err);
@@ -59,22 +58,6 @@ function Dashboard(){
     <div className="dashboard-container">
 
       <h1 className="dashboard-title">WorkLife Balance Dashboard</h1>
-
-      <div style={{textAlign:"center",marginBottom:"20px"}}>
-      <button
-        onClick={()=>navigate("/chatbot")}
-        style={{
-          background:"#0A4D8C",
-          color:"white",
-          padding:"10px 20px",
-          border:"none",
-          borderRadius:"8px",
-          cursor:"pointer"
-        }}
-      >
-        Open AI Work-Life Assistant 💬
-      </button>
-    </div>
 
       {/* ---------------- ML RESULT ---------------- */}
 
@@ -137,7 +120,7 @@ function Dashboard(){
 
       )}
 
-      {/* ---------------- TREND ANALYSIS (GRAPH) ---------------- */}
+      {/* ---------------- TREND ANALYSIS ---------------- */}
 
       <div className="trend-box">
 
@@ -213,6 +196,10 @@ function Dashboard(){
         </div>
 
       )}
+
+      {/* ---------------- FLOATING CHATBOT ---------------- */}
+
+      <FloatingChatbot/>
 
     </div>
 

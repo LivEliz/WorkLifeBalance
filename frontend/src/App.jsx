@@ -9,7 +9,6 @@ import Home from "./pages/home";
 import WeeklyCheckin from "./pages/WeeklyCheckin";
 import Welcome from "./pages/Welcome";
 import Chatbot from "./pages/Chatbot";
-import FloatingChatbot from "./components/FloatingChatbot";
 
 function App() {
   return (
@@ -29,8 +28,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
       </Routes>
 
-      {/* Floating AI Assistant visible on all pages */}
-      <FloatingChatbot />
+      
 
     </BrowserRouter>
   );
