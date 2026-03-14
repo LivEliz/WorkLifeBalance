@@ -500,7 +500,6 @@ Assistant response:
     def generate():
 
         full_reply = ""
-        full_reply = full_reply.strip()
 
         for chunk in chatbot_stream(prompt):
 

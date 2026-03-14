@@ -41,12 +41,31 @@ df = df.dropna(subset=numeric_cols)
 # Keep Kaggle Score
 # -------------------------------------------------
 
-df["wlb_score"] = df["WORK_LIFE_BALANCE_SCORE"]
+df["raw_wlb_score"] = df["WORK_LIFE_BALANCE_SCORE"]
+
+# -------------------------------------------------
+# SCALE SCORE TO 0-100
+# -------------------------------------------------
+
+score_min = df["raw_wlb_score"].min()
+score_max = df["raw_wlb_score"].max()
+
+df["wlb_score"] = (
+    (df["raw_wlb_score"] - score_min) /
+    (score_max - score_min)
+) * 100
+
+df["wlb_score"] = df["wlb_score"].round(2)
+
+# -------------------------------------------------
+# Labels using scaled score
+# -------------------------------------------------
 
 def label(score):
-    if score < 550:
+
+    if score < 40:
         return "POOR"
-    elif score < 700:
+    elif score < 70:
         return "MODERATE"
     else:
         return "GOOD"
@@ -57,15 +76,11 @@ df["wlb_label"] = df["wlb_score"].apply(label)
 # Feature Engineering
 # -------------------------------------------------
 
-# HOURS WORKED (proxy using TODO_COMPLETED)
-
 df["hours_worked"] = pd.cut(
     df["TODO_COMPLETED"],
     bins=[-1,2,4,6,8,10],
     labels=["<35","35-40","40-45","45-50",">50"]
 )
-
-# OVERTIME HOURS (proxy using DAILY_STRESS)
 
 df["overtime_hours"] = pd.cut(
     df["DAILY_STRESS"],
@@ -73,15 +88,11 @@ df["overtime_hours"] = pd.cut(
     labels=["None","1-5","6-10","11-15",">15"]
 )
 
-# PROJECTS HANDLED (TODO_COMPLETED)
-
 df["projects_handled"] = pd.cut(
     df["TODO_COMPLETED"],
     bins=[-1,1,3,5,8,10],
     labels=["1","2-3","4-5","6-8",">8"]
 )
-
-# MEETINGS COUNT (FLOW proxy)
 
 df["meetings_count"] = pd.cut(
     df["FLOW"],
@@ -89,23 +100,15 @@ df["meetings_count"] = pd.cut(
     labels=["0-5","6-10","11-15","16-20",">20"]
 )
 
-# WORKLOAD RATING
-
 df["workload_rating"] = df["DAILY_STRESS"].clip(1,5)
-
-# DEADLINE PRESSURE (mapped from DAILY_SHOUTING)
 
 df["deadline_pressure"] = (
     df["DAILY_SHOUTING"] / 10 * 5
 ).round().clip(1,5)
 
-# PRODUCTIVITY RATING (mapped from ACHIEVEMENT)
-
 df["productivity_rating"] = (
     df["ACHIEVEMENT"] / 10 * 5
 ).round().clip(1,5)
-
-# TASK DELAY (from DAILY_STRESS)
 
 df["task_delay"] = pd.cut(
     df["DAILY_STRESS"],
@@ -113,15 +116,11 @@ df["task_delay"] = pd.cut(
     labels=["Never","Rarely","Sometimes","Often","Always"]
 )
 
-# BREAKS (from SLEEP_HOURS)
-
 df["breaks"] = pd.cut(
     df["SLEEP_HOURS"],
     bins=[-1,4,5,6,7,24],
     labels=["None","1","2","3","4+"]
 )
-
-# BREAK DURATION (from FLOW)
 
 df["break_duration"] = pd.cut(
     df["FLOW"],
@@ -129,15 +128,11 @@ df["break_duration"] = pd.cut(
     labels=["<10","10-20","20-30","30-45",">45"]
 )
 
-# SICK DAYS (from LOST_VACATION)
-
 df["sick_days"] = pd.cut(
     df["LOST_VACATION"],
     bins=[-1,0,2,4,6,10],
     labels=["None","1","2","3","4+"]
 )
-
-# LEAVE DAYS (from LOST_VACATION)
 
 df["leave_days"] = pd.cut(
     df["LOST_VACATION"],
@@ -145,13 +140,9 @@ df["leave_days"] = pd.cut(
     labels=["None","1","2","3","4+"]
 )
 
-# EXHAUSTION RATING (from DAILY_STRESS)
-
 df["exhaustion_rating"] = (
     df["DAILY_STRESS"] / 10 * 5
 ).round().clip(1,5)
-
-# TRAVEL (from PLACES_VISITED)
 
 df["travel"] = pd.cut(
     df["PLACES_VISITED"],
@@ -159,13 +150,9 @@ df["travel"] = pd.cut(
     labels=["No travel","1 trip","2 trips","3 trips",">3 trips"]
 )
 
-# TRAVEL ENJOYMENT (from TIME_FOR_PASSION)
-
 df["travel_enjoyment"] = (
     df["TIME_FOR_PASSION"] / 10 * 5
 ).round().clip(1,5)
-
-# FAMILY TIME (from CORE_CIRCLE)
 
 df["family_time"] = pd.cut(
     df["CORE_CIRCLE"],
@@ -173,13 +160,9 @@ df["family_time"] = pd.cut(
     labels=["<3","3-5","6-10","11-15",">15"]
 )
 
-# SOCIAL SATISFACTION (from SUPPORTING_OTHERS)
-
 df["social_satisfaction"] = (
     df["SUPPORTING_OTHERS"] / 10 * 5
 ).round().clip(1,5)
-
-# COMMUTE TIME (synthetic because dataset lacks it)
 
 np.random.seed(42)
 

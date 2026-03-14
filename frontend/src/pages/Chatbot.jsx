@@ -37,23 +37,21 @@ let aiText = "";
 
 setMessages(prev => [...prev,{role:"ai",text:""}]);
 
-while(true){
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
 
-const {done,value} = await reader.read();
+  const chunk = decoder.decode(value, { stream: true });
 
-if(done) break;
+  aiText += chunk;
 
-const chunk = decoder.decode(value);
-
-aiText += chunk;
-
-setMessages(prev => {
-const updated=[...prev];
-updated[updated.length-1].text = aiText;
-return updated;
-});
-
+  setMessages(prev => {
+    const updated = [...prev];
+    updated[updated.length - 1].text = aiText;
+    return updated;
+  });
 }
+
 
 }catch(err){
 
