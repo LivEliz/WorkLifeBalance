@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getDashboard } from "../services/api";
-import bg from "../assets/bg_wlb.png"; 
+import { getDashboard, deleteProfile } from "../services/api";
+import bg from "../assets/bg_wlb.png";
 
 export default function Home(){
 
   const navigate = useNavigate();
   const [hasData,setHasData] = useState(false);
+  const [showMenu,setShowMenu] = useState(false);
 
   useEffect(()=>{
 
@@ -41,6 +42,28 @@ export default function Home(){
     navigate("/weekly-checkin");
   };
 
+  const goToProfile = () => {
+    navigate("/profile");
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
+  const handleDelete = async () => {
+
+    const confirmDelete = window.confirm("Are you sure you want to delete your account?");
+
+    if(!confirmDelete) return;
+
+    await deleteProfile();
+
+    localStorage.removeItem("token");
+
+    navigate("/signup");
+  };
+
   return(
 
   <div style={{
@@ -52,6 +75,67 @@ export default function Home(){
     backgroundImage: `url(${bg})`,
     fontFamily:"Segoe UI"
   }}>
+
+  {/* PROFILE DROPDOWN */}
+
+  <div style={{
+    position:"absolute",
+    top:"20px",
+    right:"30px"
+  }}>
+
+    <button
+      onClick={()=>setShowMenu(!showMenu)}
+      style={{
+        padding:"10px 16px",
+        borderRadius:"8px",
+        border:"none",
+        background:"#0A4D8C",
+        color:"white",
+        cursor:"pointer"
+      }}
+    >
+      View Profile ▼
+    </button>
+
+    {showMenu && (
+
+      <div style={{
+        background:"white",
+        boxShadow:"0 5px 15px rgba(0,0,0,0.2)",
+        borderRadius:"8px",
+        marginTop:"8px",
+        overflow:"hidden"
+      }}>
+
+        <div
+          onClick={goToProfile}
+          style={menuItem}
+        >
+          View / Update Profile
+        </div>
+
+        <div
+          onClick={logout}
+          style={menuItem}
+        >
+          Sign Out
+        </div>
+
+        <div
+          onClick={handleDelete}
+          style={{...menuItem,color:"red"}}
+        >
+          Delete Account
+        </div>
+
+      </div>
+
+    )}
+
+  </div>
+
+  {/* MAIN CARD */}
 
   <div style={{
     background:"white",
@@ -108,3 +192,9 @@ export default function Home(){
 
   );
 }
+
+const menuItem = {
+  padding:"10px 20px",
+  cursor:"pointer",
+  borderBottom:"1px solid #eee"
+};

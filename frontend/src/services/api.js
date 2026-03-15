@@ -74,10 +74,13 @@ export const saveProfile = (data) =>
   API.post("/profile-setup", data);
 
 export const updateProfile = (data) =>
-  API.put("/profile-update", data);
+  API.post("/profile-setup", data);
 
 export const deleteProfile = () =>
   API.delete("/delete-account");
+
+export const getProfile = () =>
+  API.get("/profile");
 
 
 // ===============================

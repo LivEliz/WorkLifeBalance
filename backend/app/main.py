@@ -539,3 +539,20 @@ def delete_account(current_user: str = Depends(get_current_user)):
     wlb_results_collection.delete_many({"email": current_user})
 
     return {"message": "Account deleted successfully"}
+
+# =========================
+# GET USER PROFILE
+# =========================
+
+@app.get("/profile")
+def get_profile(current_user: str = Depends(get_current_user)):
+
+    user = users_collection.find_one(
+        {"email": current_user},
+        {"_id": 0, "password": 0}
+    )
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user

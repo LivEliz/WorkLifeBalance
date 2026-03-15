@@ -1,31 +1,41 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { saveProfile } from "../services/api";
-import bg from "../assets/bg_wlb.png"; 
+import bg from "../assets/bg_wlb.png";
 
-function ProfileSetup(){
+export default function ProfileSetup(){
 
-  const [profile,setProfile] = useState({
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    email:"",
+  const existingData = location.state;
 
-    age_group:"",
-    marital_status:"",
-    children:"",
+  const [profile,setProfile] = useState(
 
-    department:"",
-    role_level:"",
+    existingData || {
 
-    work_mode:"",
-    official_work_hours:"",
-    commute_time:""
-  });
+      email:"",
+      age_group:"",
+      marital_status:"",
+      children:"",
+
+      department:"",
+      role_level:"",
+
+      work_mode:"",
+      official_work_hours:"",
+      commute_time:""
+    }
+  );
 
   useEffect(()=>{
 
-    const email = localStorage.getItem("email");
+    if(!existingData){
+      const email = localStorage.getItem("email");
 
-    if(email){
-      setProfile(prev => ({...prev, email}));
+      if(email){
+        setProfile(prev => ({...prev,email}));
+      }
     }
 
   },[]);
@@ -35,13 +45,19 @@ function ProfileSetup(){
 
     e.preventDefault();
 
-    await saveProfile(profile);
+    try{
 
-    alert("Profile saved");
+      await saveProfile(profile);
 
-    window.location.href="/login";
+      alert("Profile saved successfully");
+
+      navigate("/home");
+
+    }
+    catch(err){
+      alert("Error saving profile");
+    }
   };
-
 
   return(
 
@@ -58,7 +74,9 @@ function ProfileSetup(){
 
     <h3>Personal Context</h3>
 
-    <select onChange={(e)=>setProfile({...profile,age_group:e.target.value})}>
+    <select
+    value={profile.age_group}
+    onChange={(e)=>setProfile({...profile,age_group:e.target.value})}>
       <option value="">Select Age Group</option>
       <option value="18-25">18-25</option>
       <option value="26-35">26-35</option>
@@ -67,7 +85,9 @@ function ProfileSetup(){
       <option value="55+">55+</option>
     </select>
 
-    <select onChange={(e)=>setProfile({...profile,marital_status:e.target.value})}>
+    <select
+    value={profile.marital_status}
+    onChange={(e)=>setProfile({...profile,marital_status:e.target.value})}>
       <option value="">Marital Status</option>
       <option value="Single">Single</option>
       <option value="Married">Married</option>
@@ -76,7 +96,9 @@ function ProfileSetup(){
       <option value="Prefer not to say">Prefer not to say</option>
     </select>
 
-    <select onChange={(e)=>setProfile({...profile,children:e.target.value})}>
+    <select
+    value={profile.children}
+    onChange={(e)=>setProfile({...profile,children:e.target.value})}>
       <option value="">Children</option>
       <option value="No children">No children</option>
       <option value="1 child">1 child</option>
@@ -92,11 +114,13 @@ function ProfileSetup(){
     <h3>Work Context</h3>
 
     <input
+      value={profile.department}
       placeholder="Department"
       onChange={(e)=>setProfile({...profile,department:e.target.value})}
     />
 
     <input
+      value={profile.role_level}
       placeholder="Role Level"
       onChange={(e)=>setProfile({...profile,role_level:e.target.value})}
     />
@@ -108,14 +132,18 @@ function ProfileSetup(){
 
     <h3>Work Structure</h3>
 
-    <select onChange={(e)=>setProfile({...profile,work_mode:e.target.value})}>
+    <select
+    value={profile.work_mode}
+    onChange={(e)=>setProfile({...profile,work_mode:e.target.value})}>
       <option value="">Work Mode</option>
       <option value="Work From Home">Work From Home</option>
       <option value="Hybrid">Hybrid</option>
       <option value="Office Only">Office Only</option>
     </select>
 
-    <select onChange={(e)=>setProfile({...profile,official_work_hours:e.target.value})}>
+    <select
+    value={profile.official_work_hours}
+    onChange={(e)=>setProfile({...profile,official_work_hours:e.target.value})}>
       <option value="">Work Hours</option>
       <option value="8 AM – 4 PM">8 AM – 4 PM</option>
       <option value="9 AM – 5 PM">9 AM – 5 PM</option>
@@ -132,7 +160,9 @@ function ProfileSetup(){
 
     <h3>Commute</h3>
 
-    <select onChange={(e)=>setProfile({...profile,commute_time:e.target.value})}>
+    <select
+    value={profile.commute_time}
+    onChange={(e)=>setProfile({...profile,commute_time:e.target.value})}>
       <option value="">Commute Time</option>
       <option value="No commute (Work From Home)">No commute (Work From Home)</option>
       <option value="Less than 30 minutes">Less than 30 minutes</option>
@@ -148,8 +178,5 @@ function ProfileSetup(){
   </form>
 
   </div>
-
   );
 }
-
-export default ProfileSetup;
